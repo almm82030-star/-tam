@@ -20,7 +20,7 @@ button{background:#0d6efd;color:white;cursor:pointer;}
 <img class="logo" src="https://i.ibb.co/yFCW2v98/Untitled.webp" alt="شعار تم">
 
 <div class="flex">
-<img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Flag_of_Saudi_Arabia.svg" class="lang-switch" id="lang-ar" title="عربي">
+<img src="https://i.ibb.co/NjQv3H5/saudi-flag.png" class="lang-switch" id="lang-ar" title="عربي">
 <img src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg" class="lang-switch" id="lang-en" title="English">
 </div>
 
@@ -50,12 +50,15 @@ button{background:#0d6efd;color:white;cursor:pointer;}
 <button onclick="window.location.href='admin.html'">لوحة التحكم</button>
 </div>
 
+<!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js"></script>
 
+<!-- Google Maps JS API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwQ-uZOQQSh7JTxI5MojlwXgdva1Vc738"></script>
+
 <script>
 // ---- CONFIG ----
-const GOOGLE_MAPS_KEY = "AIzaSyAwQ-uZOQQSh7JTxI5MojlwXgdva1Vc738";
 const OPENAI_KEY = "AIzaSyAEr_y5odGdmuycLZb7p6SOz0wrFnDZL4Y";
 
 // Firebase setup
@@ -99,55 +102,56 @@ async function correctCityName(city){
 }
 
 // ---- Calculate ----
-async function calculate(){
-let from=await correctCityName(document.getElementById("from").value);
-let to=await correctCityName(document.getElementById("to").value);
-let car=document.getElementById("carModel").value;
-let fuel=document.getElementById("fuelType").value;
+function calculate() {
+  let from = document.getElementById("from").value;
+  let to = document.getElementById("to").value;
+  let car = document.getElementById("carModel").value;
+  let fuel = document.getElementById("fuelType").value;
 
-// استهلاك السيارات حسب الطراز
-let carConsumptionMap = {
-  "peugeot301":14,
-  "kiaSportage":10,
-  "gmcSierra":8,
-  "pegas":12,
-  "dieselTruck":10
-};
-let carConsumption = carConsumptionMap[car] || 12;
+  if (!from || !to) { alert("يرجى إدخال المدن"); return; }
 
-// أسعار الوقود
-let fuelPriceMap = {
-  "91":2.18,
-  "95":2.33,
-  "diesel":1.66
-};
-let price = fuelPriceMap[fuel];
+  // استهلاك السيارات حسب الطراز
+  let carConsumptionMap = {
+    "peugeot301":14,
+    "kiaSportage":10,
+    "gmcSierra":8,
+    "pegas":12,
+    "dieselTruck":10
+  };
+  let carConsumption = carConsumptionMap[car] || 12;
 
-// Google Maps API
-let url=`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(from)}&destinations=${encodeURIComponent(to)}&key=${GOOGLE_MAPS_KEY}`;
-try{
-let res=await fetch(url);
-let data=await res.json();
-let meters=data.rows[0].elements[0].distance.value;
-let km=meters/1000;
+  // أسعار الوقود
+  let fuelPriceMap = {
+    "91":2.18,
+    "95":2.33,
+    "diesel":1.66
+  };
+  let price = fuelPriceMap[fuel];
 
-// الحساب
-let liters=km/carConsumption;
-let cost=liters*price;
+  // Google Maps DirectionsService
+  let directionsService = new google.maps.DirectionsService();
+  directionsService.route({
+    origin: from,
+    destination: to,
+    travelMode: 'DRIVING'
+  }, function(result, status){
+    if(status === 'OK'){
+      let km = result.routes[0].legs[0].distance.value / 1000;
+      let liters = km / carConsumption;
+      let cost = liters * price;
+      document.getElementById("result").innerHTML=
+        `المسافة: ${km.toFixed(1)} كم<br>
+        استهلاك: ${liters.toFixed(2)} لتر<br>
+        التكلفة: ${cost.toFixed(2)} ريال<br>
+        السيارة: ${car}<br>
+        نوع الوقود: ${fuel}`;
 
-document.getElementById("result").innerHTML=
-`المسافة: ${km.toFixed(1)} كم<br>
-استهلاك: ${liters.toFixed(2)} لتر<br>
-التكلفة: ${cost.toFixed(2)} ريال<br>
-السيارة: ${car}<br>
-نوع الوقود: ${fuel}`;
-
-// حفظ الطلب
-db.ref("requests").push({from,to,km,liters,cost,car,fuel,time:new Date().toLocaleString()});
-
-}catch(err){
-alert("حدث خطأ في جلب المسافة من Google Maps API، تحقق من المفتاح أو اسم المدن.");
-}
+      // حفظ الطلب في Firebase
+      db.ref("requests").push({from,to,km,liters,cost,car,fuel,time:new Date().toLocaleString()});
+    } else {
+      alert("حدث خطأ في حساب المسافة، تحقق من أسماء المدن.");
+    }
+  });
 }
 
 // ---- Language Switch ----
@@ -156,5 +160,6 @@ document.getElementById("lang-en").onclick=()=>document.body.dir="ltr";
 </script>
 </body>
 </html>
+
 
 
