@@ -3,65 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تم - نظام حساب تكلفة الوقود</title>
+<title>تم - لوحة التحكم</title>
 <style>
 body{font-family:"Tajawal",sans-serif;background:#111;color:white;margin:0;padding:20px;text-align:center;}
-.card{background:#1c1c1c;padding:20px;margin:20px auto;border-radius:14px;max-width:600px;box-shadow:0 0 20px #000;}
-input,select,button{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:none;font-size:16px;}
+.card{background:#1c1c1c;padding:20px;margin:20px auto;border-radius:14px;max-width:800px;box-shadow:0 0 20px #000;}
+input,button{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:none;font-size:16px;}
 button{background:#0d6efd;color:white;cursor:pointer;}
 table{width:100%;border-collapse:collapse;margin-top:12px;}
 th,td{border:1px solid #555;padding:6px;text-align:center;}
-.logo{width:160px;margin-bottom:10px;}
-.flex{display:flex;justify-content:center;align-items:center;margin-bottom:10px;}
-.lang-switch{width:30px;height:20px;margin:5px;cursor:pointer;}
 </style>
 </head>
 <body>
 
-<img class="logo" src="https://i.ibb.co/SwgRSYj/1.png" alt="شعار تم">
-
-<div class="flex">
-<img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Flag_of_Saudi_Arabia.svg" class="lang-switch" id="lang-ar">
-<img src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg" class="lang-switch" id="lang-en">
-</div>
-
 <div id="loginBox" class="card">
-<h3>تسجيل الدخول</h3>
+<h3>تسجيل دخول لوحة التحكم</h3>
 <input id="user" placeholder="اسم المستخدم">
 <input id="pass" type="password" placeholder="كلمة المرور">
 <button onclick="login()">دخول</button>
 </div>
 
-<div id="app" class="card" style="display:none">
-<h3>حساب التكلفة</h3>
-
-<input id="from" placeholder="من">
-<input id="to" placeholder="إلى">
-<select id="carType">
-<option value="sedan">سيدان</option>
-<option value="suv">SUV</option>
-<option value="peugeot">بيجو</option>
-<option value="kia">كيا</option>
-<option value="gmc">GMC</option>
-<option value="diesel">ديزل</option>
-</select>
-<select id="fuelType">
-<option value="91">بنزين 91</option>
-<option value="95">بنزين 95</option>
-<option value="diesel">ديزل</option>
-</select>
-<input id="fuelPrice" placeholder="سعر اللتر (مثال: 0.75)">
-
-<button onclick="calculate()">احسب الآن</button>
-
-<h3 id="result"></h3>
-
-<h3>لوحة التحكم — الطلبات</h3>
+<div id="admin" class="card" style="display:none">
+<h3>جميع الطلبات</h3>
 <table>
 <thead><tr><th>من</th><th>إلى</th><th>المسافة (كم)</th><th>استهلاك (لتر)</th><th>التكلفة (ريال)</th><th>السيارة</th><th>الوقود</th><th>الوقت</th></tr></thead>
 <tbody id="tblReq"></tbody>
 </table>
-
 <button onclick="logout()">تسجيل خروج</button>
 </div>
 
@@ -69,11 +35,6 @@ th,td{border:1px solid #555;padding:6px;text-align:center;}
 <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js"></script>
 
 <script>
-// ---- CONFIG ----
-const GOOGLE_MAPS_KEY = "AIzaSyAwQ-uZOQQSh7JTxI5MojlwXgdva1Vc738";
-const OPENAI_KEY = "AIzaSyAEr_y5odGdmuycLZb7p6SOz0wrFnDZL4Y";
-
-// Firebase setup
 const firebaseConfig = {
 apiKey: "AIzaSyBkOM7eSnUJ0B_3Mx4wVyh-lTvFEAhxWas",
 authDomain: "tama-6219c.firebaseapp.com",
@@ -86,72 +47,20 @@ appId: "1:285162278384:web:8264d5439564660b616135"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// ---- LOGIN ----
 function login(){
 let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
 if(u==="petroapp" && p==="212775"){
 document.getElementById("loginBox").style.display="none";
-document.getElementById("app").style.display="block";
+document.getElementById("admin").style.display="block";
 loadRequests();
 }else{alert("❌ اسم المستخدم أو كلمة المرور خاطئة")}
 }
 function logout(){
 document.getElementById("loginBox").style.display="block";
-document.getElementById("app").style.display="none";
-document.getElementById("result").innerHTML="";
+document.getElementById("admin").style.display="none";
 }
 
-// ---- UTILITIES ----
-async function correctCityName(city){
-  // استدعاء Google AI لتصحيح الاسم
-  // للعرض فقط، يمكن تطويرها لاحقاً لاستدعاء OpenAI API
-  return city; // حالياً نعيد الاسم كما هو
-}
-
-// ---- CALCULATE ----
-async function calculate(){
-let from=await correctCityName(document.getElementById("from").value);
-let to=await correctCityName(document.getElementById("to").value);
-let car=document.getElementById("carType").value;
-let fuel=document.getElementById("fuelType").value;
-let price=parseFloat(document.getElementById("fuelPrice").value);
-
-if(!from||!to||!price){alert("املأ جميع الحقول");return;}
-
-// استهلاك السيارة حسب الطراز
-let carConsumption = 12; // متوسط
-if(car==="sedan") carConsumption=14;
-else if(car==="suv") carConsumption=10;
-else if(car==="peugeot") carConsumption=12;
-else if(car==="kia") carConsumption=13;
-else if(car==="gmc") carConsumption=8;
-else if(car==="diesel") carConsumption=10;
-
-// ---- Google Maps API ----
-let url=`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(from)}&destinations=${encodeURIComponent(to)}&key=${GOOGLE_MAPS_KEY}`;
-let res=await fetch(url);
-let data=await res.json();
-let meters=data.rows[0].elements[0].distance.value;
-let km=meters/1000;
-
-// ---- الحساب ----
-let liters=km/carConsumption;
-let cost=liters*price;
-
-document.getElementById("result").innerHTML=
-`المسافة: ${km.toFixed(1)} كم<br>
-استهلاك: ${liters.toFixed(2)} لتر<br>
-التكلفة: ${cost.toFixed(2)} ريال<br>
-السيارة: ${car}<br>
-نوع الوقود: ${fuel}`;
-
-// حفظ الطلب
-db.ref("requests").push({from,to,km,liters,cost,car,fuel,time:new Date().toLocaleString()});
-loadRequests();
-}
-
-// ---- LOAD REQUESTS ----
 function loadRequests(){
 let tbl=document.getElementById("tblReq");
 tbl.innerHTML="";
@@ -164,11 +73,7 @@ tbl.appendChild(tr);
 });
 });
 }
-
-// ---- LANGUAGE SWITCH ----
-document.getElementById("lang-ar").onclick=()=>document.body.dir="rtl";
-document.getElementById("lang-en").onclick=()=>document.body.dir="ltr";
-
 </script>
 </body>
 </html>
+
