@@ -3,38 +3,62 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>تم - لوحة التحكم</title>
+<title>تم - حساب تكلفة الوقود</title>
 <style>
 body{font-family:"Tajawal",sans-serif;background:#111;color:white;margin:0;padding:20px;text-align:center;}
-.card{background:#1c1c1c;padding:20px;margin:20px auto;border-radius:14px;max-width:800px;box-shadow:0 0 20px #000;}
-input,button{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:none;font-size:16px;}
+.card{background:#1c1c1c;padding:20px;margin:20px auto;border-radius:14px;max-width:600px;box-shadow:0 0 20px #000;}
+input,select,button{width:100%;padding:12px;margin-top:8px;border-radius:10px;border:none;font-size:16px;}
 button{background:#0d6efd;color:white;cursor:pointer;}
-table{width:100%;border-collapse:collapse;margin-top:12px;}
-th,td{border:1px solid #555;padding:6px;text-align:center;}
+.logo{width:160px;margin-bottom:10px;}
+.flex{display:flex;justify-content:center;align-items:center;margin-bottom:10px;}
+.lang-switch{width:30px;height:20px;margin:5px;cursor:pointer;}
+#result{margin-top:15px;font-size:18px;font-weight:bold;}
 </style>
 </head>
 <body>
 
-<div id="loginBox" class="card">
-<h3>تسجيل دخول لوحة التحكم</h3>
-<input id="user" placeholder="اسم المستخدم">
-<input id="pass" type="password" placeholder="كلمة المرور">
-<button onclick="login()">دخول</button>
+<img class="logo" src="https://i.ibb.co/yFCW2v98/Untitled.webp" alt="شعار تم">
+
+<div class="flex">
+<img src="https://upload.wikimedia.org/wikipedia/commons/0/0b/Flag_of_Saudi_Arabia.svg" class="lang-switch" id="lang-ar" title="عربي">
+<img src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg" class="lang-switch" id="lang-en" title="English">
 </div>
 
-<div id="admin" class="card" style="display:none">
-<h3>جميع الطلبات</h3>
-<table>
-<thead><tr><th>من</th><th>إلى</th><th>المسافة (كم)</th><th>استهلاك (لتر)</th><th>التكلفة (ريال)</th><th>السيارة</th><th>الوقود</th><th>الوقت</th></tr></thead>
-<tbody id="tblReq"></tbody>
-</table>
-<button onclick="logout()">تسجيل خروج</button>
+<div class="card">
+<h3>حساب تكلفة الوقود</h3>
+<input id="from" placeholder="من">
+<input id="to" placeholder="إلى">
+
+<select id="carModel">
+<option value="peugeot301">بيجو 301 (سيدان)</option>
+<option value="kiaSportage">كيا سبورتاج (SUV)</option>
+<option value="gmcSierra">GMC Sierra (Truck)</option>
+<option value="pegas">Pegas (مبردة)</option>
+<option value="dieselTruck">ديزل (شاحنة)</option>
+</select>
+
+<select id="fuelType">
+<option value="91">بنزين 91</option>
+<option value="95">بنزين 95</option>
+<option value="diesel">ديزل</option>
+</select>
+
+<button onclick="calculate()">احسب الآن</button>
+
+<h3 id="result"></h3>
+
+<button onclick="window.location.href='admin.html'">لوحة التحكم</button>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js"></script>
 
 <script>
+// ---- CONFIG ----
+const GOOGLE_MAPS_KEY = "AIzaSyAwQ-uZOQQSh7JTxI5MojlwXgdva1Vc738";
+const OPENAI_KEY = "AIzaSyAEr_y5odGdmuycLZb7p6SOz0wrFnDZL4Y";
+
+// Firebase setup
 const firebaseConfig = {
 apiKey: "AIzaSyBkOM7eSnUJ0B_3Mx4wVyh-lTvFEAhxWas",
 authDomain: "tama-6219c.firebaseapp.com",
@@ -47,33 +71,90 @@ appId: "1:285162278384:web:8264d5439564660b616135"
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-function login(){
-let u=document.getElementById("user").value;
-let p=document.getElementById("pass").value;
-if(u==="petroapp" && p==="212775"){
-document.getElementById("loginBox").style.display="none";
-document.getElementById("admin").style.display="block";
-loadRequests();
-}else{alert("❌ اسم المستخدم أو كلمة المرور خاطئة")}
-}
-function logout(){
-document.getElementById("loginBox").style.display="block";
-document.getElementById("admin").style.display="none";
+// ---- Utilities ----
+const cityCache = {};
+async function correctCityName(city){
+  if(cityCache[city]) return cityCache[city];
+  try{
+    let prompt = `صحح اسم المدينة هذا ليصبح صحيحاً في المملكة العربية السعودية: "${city}"`;
+    let res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+OPENAI_KEY
+      },
+      body:JSON.stringify({
+        model:"gpt-4",
+        messages:[{role:"user", content:prompt}],
+        max_tokens:20
+      })
+    });
+    let data = await res.json();
+    let corrected = data.choices[0].message.content.trim() || city;
+    cityCache[city] = corrected;
+    return corrected;
+  }catch(e){
+    return city;
+  }
 }
 
-function loadRequests(){
-let tbl=document.getElementById("tblReq");
-tbl.innerHTML="";
-db.ref("requests").once("value",snapshot=>{
-snapshot.forEach(s=>{
-let r=s.val();
-let tr=document.createElement("tr");
-tr.innerHTML=`<td>${r.from}</td><td>${r.to}</td><td>${r.km.toFixed(1)}</td><td>${r.liters.toFixed(2)}</td><td>${r.cost.toFixed(2)}</td><td>${r.car}</td><td>${r.fuel}</td><td>${r.time}</td>`;
-tbl.appendChild(tr);
-});
-});
+// ---- Calculate ----
+async function calculate(){
+let from=await correctCityName(document.getElementById("from").value);
+let to=await correctCityName(document.getElementById("to").value);
+let car=document.getElementById("carModel").value;
+let fuel=document.getElementById("fuelType").value;
+
+// استهلاك السيارات حسب الطراز
+let carConsumptionMap = {
+  "peugeot301":14,
+  "kiaSportage":10,
+  "gmcSierra":8,
+  "pegas":12,
+  "dieselTruck":10
+};
+let carConsumption = carConsumptionMap[car] || 12;
+
+// أسعار الوقود
+let fuelPriceMap = {
+  "91":2.18,
+  "95":2.33,
+  "diesel":1.66
+};
+let price = fuelPriceMap[fuel];
+
+// Google Maps API
+let url=`https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(from)}&destinations=${encodeURIComponent(to)}&key=${GOOGLE_MAPS_KEY}`;
+try{
+let res=await fetch(url);
+let data=await res.json();
+let meters=data.rows[0].elements[0].distance.value;
+let km=meters/1000;
+
+// الحساب
+let liters=km/carConsumption;
+let cost=liters*price;
+
+document.getElementById("result").innerHTML=
+`المسافة: ${km.toFixed(1)} كم<br>
+استهلاك: ${liters.toFixed(2)} لتر<br>
+التكلفة: ${cost.toFixed(2)} ريال<br>
+السيارة: ${car}<br>
+نوع الوقود: ${fuel}`;
+
+// حفظ الطلب
+db.ref("requests").push({from,to,km,liters,cost,car,fuel,time:new Date().toLocaleString()});
+
+}catch(err){
+alert("حدث خطأ في جلب المسافة من Google Maps API، تحقق من المفتاح أو اسم المدن.");
 }
+}
+
+// ---- Language Switch ----
+document.getElementById("lang-ar").onclick=()=>document.body.dir="rtl";
+document.getElementById("lang-en").onclick=()=>document.body.dir="ltr";
 </script>
 </body>
 </html>
+
 
