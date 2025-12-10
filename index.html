@@ -744,17 +744,24 @@
             const routeInfo = await getRouteInfo(from, to);
             
             if (routeInfo && routeInfo.distance) {
+                // تطبيق الزيادة: إضافة 30 كم لكل 1000 كم
+                const baseDistance = routeInfo.distance;
+                const adjustedDistance = applyDistanceAdjustment(baseDistance);
+                const duration = routeInfo.duration;
+                
                 // الحسابات
                 const consumptionRate = carConsumption[carModel] || 12;
                 const fuelPrice = fuelPrices[fuelType] || 2.18;
-                const distance = routeInfo.distance;
-                const duration = routeInfo.duration;
                 
-                const fuelNeeded = distance / consumptionRate;
+                const fuelNeeded = adjustedDistance / consumptionRate;
                 const totalCost = fuelNeeded * fuelPrice;
                 
                 // عرض النتائج
-                document.getElementById('distance').textContent = distance.toFixed(1) + " كم";
+                document.getElementById('distance').textContent = 
+                    adjustedDistance.toFixed(1) + " كم" + 
+                    (baseDistance !== adjustedDistance ? 
+                    ` <small style="color:#ff6b6b;font-size:14px;">(بعد التعديل)</small>` : "");
+                
                 document.getElementById('fuelNeeded').textContent = fuelNeeded.toFixed(1) + " لتر";
                 document.getElementById('totalCost').textContent = totalCost.toFixed(2) + " ريال";
                 document.getElementById('duration').textContent = duration;
@@ -762,8 +769,8 @@
                 // إظهار النتائج
                 resultContainer.style.display = 'block';
                 
-                // حفظ في قاعدة البيانات
-                saveToDatabase(from, to, distance, fuelNeeded, totalCost, carModel, fuelType, duration);
+                // حفظ في قاعدة البيانات مع المسافة المعدلة
+                saveToDatabase(from, to, baseDistance, adjustedDistance, fuelNeeded, totalCost, carModel, fuelType, duration);
             } else {
                 alert("تعذر حساب المسافة. يرجى المحاولة مرة أخرى.");
             }
@@ -774,6 +781,22 @@
             // إخفاء مؤشر التحميل
             loading.style.display = 'none';
         }
+    }
+
+    // ---- تطبيق تعديل المسافة: إضافة 30 كم لكل 1000 كم ----
+    function applyDistanceAdjustment(baseDistance) {
+        // حساب عدد مضاعفات الـ 1000 كم
+        const multiplesOf1000 = Math.floor(baseDistance / 1000);
+        
+        // إضافة 30 كم لكل 1000 كم
+        const extraDistance = multiplesOf1000 * 30;
+        
+        // المسافة النهائية بعد التعديل
+        const adjustedDistance = baseDistance + extraDistance;
+        
+        console.log(`📏 تعديل المسافة: ${baseDistance.toFixed(1)} كم → ${adjustedDistance.toFixed(1)} كم (تم إضافة ${extraDistance} كم)`);
+        
+        return adjustedDistance;
     }
 
     // ---- الحصول على معلومات المسار ----
@@ -882,11 +905,12 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             const distance = R * c;
             
-            return distance;
+            // تطبيق التعديل على المسافة المقدرة أيضاً
+            return applyDistanceAdjustment(distance);
         }
         
         // تقدير افتراضي إذا لم تكن المدينة في القائمة
-        return 450;
+        return applyDistanceAdjustment(450);
     }
     
     function toRad(degrees) {
@@ -894,7 +918,7 @@
     }
 
     // ---- حفظ في قاعدة البيانات ----
-    function saveToDatabase(from, to, distance, fuelNeeded, totalCost, carModel, fuelType, duration) {
+    function saveToDatabase(from, to, baseDistance, adjustedDistance, fuelNeeded, totalCost, carModel, fuelType, duration) {
         try {
             // تهيئة Firebase
             const firebaseConfig = {
@@ -916,12 +940,14 @@
             const requestData = {
                 from: from,
                 to: to,
-                distance: distance.toFixed(1),
+                baseDistance: baseDistance.toFixed(1), // المسافة الأصلية
+                adjustedDistance: adjustedDistance.toFixed(1), // المسافة بعد التعديل
                 fuelNeeded: fuelNeeded.toFixed(1),
                 totalCost: totalCost.toFixed(2),
                 carModel: carModel,
                 fuelType: fuelType,
                 duration: duration,
+                adjustmentApplied: true, // إشارة أن التعديل تم تطبيقه
                 timestamp: new Date().toISOString(),
                 date: new Date().toLocaleString('ar-SA')
             };
@@ -930,6 +956,7 @@
             db.ref('fuel_requests').push(requestData)
                 .then(() => {
                     console.log('✅ تم حفظ الحساب في قاعدة البيانات');
+                    console.log(`📊 التفاصيل: ${from} → ${to} | ${baseDistance.toFixed(1)} → ${adjustedDistance.toFixed(1)} كم`);
                 })
                 .catch(error => {
                     console.error('❌ خطأ في حفظ البيانات:', error);
