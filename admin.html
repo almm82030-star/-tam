@@ -1,1 +1,469 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تم - لوحة التحكم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background: linear-gradient(135deg, #111 0%, #222 100%);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            min-height: 100vh;
+        }
+        .card {
+            background: #1c1c1c;
+            padding: 25px;
+            margin: 20px auto;
+            border-radius: 18px;
+            max-width: 1200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid #333;
+        }
+        input, button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 12px;
+            border-radius: 12px;
+            border: none;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input {
+            background: #2a2a2a;
+            color: white;
+            border: 1px solid #444;
+        }
+        button {
+            background: linear-gradient(to right, #0d6efd, #0b5ed7);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
+        }
+        button.logout {
+            background: linear-gradient(to right, #dc3545, #c82333);
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        th {
+            background: rgba(13, 110, 253, 0.2);
+            padding: 12px 8px;
+            border: 1px solid #444;
+            font-weight: bold;
+        }
+        td {
+            padding: 10px 8px;
+            border: 1px solid #444;
+            text-align: center;
+        }
+        tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-box {
+            background: rgba(13, 110, 253, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            border-right: 4px solid #0d6efd;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0d6efd;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #aaa;
+        }
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .filters select, .filters input {
+            flex: 1;
+            min-width: 150px;
+            max-width: 200px;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .page-btn {
+            padding: 8px 15px;
+            background: #333;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .page-btn.active {
+            background: #0d6efd;
+        }
+    </style>
+</head>
+<body>
 
+<div id="loginBox" class="card">
+    <h3>تسجيل دخول لوحة التحكم</h3>
+    <input id="user" placeholder="اسم المستخدم">
+    <input id="pass" type="password" placeholder="كلمة المرور">
+    <button onclick="login()">دخول</button>
+</div>
+
+<div id="admin" class="card" style="display:none">
+    <h3>لوحة التحكم - جميع طلبات حساب الوقود</h3>
+    
+    <div class="stats" id="stats"></div>
+    
+    <div class="filters">
+        <select id="filterCity" onchange="filterTable()">
+            <option value="">جميع المدن</option>
+        </select>
+        <select id="filterCar" onchange="filterTable()">
+            <option value="">جميع السيارات</option>
+        </select>
+        <select id="filterFuel" onchange="filterTable()">
+            <option value="">جميع أنواع الوقود</option>
+            <option value="91">بنزين 91</option>
+            <option value="95">بنزين 95</option>
+            <option value="diesel">ديزل</option>
+        </select>
+        <input type="date" id="filterDate" onchange="filterTable()">
+        <button onclick="clearFilters()">إعادة الضبط</button>
+        <button onclick="exportData()" style="background: linear-gradient(to right, #28a745, #1e7e34);">
+            تصدير البيانات
+        </button>
+    </div>
+    
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>من</th>
+                    <th>إلى</th>
+                    <th>المسافة (كم)</th>
+                    <th>الوقود (لتر)</th>
+                    <th>التكلفة (ريال)</th>
+                    <th>السيارة</th>
+                    <th>نوع الوقود</th>
+                    <th>التاريخ والوقت</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="tblReq"></tbody>
+        </table>
+    </div>
+    
+    <div class="pagination" id="pagination"></div>
+    
+    <button onclick="logout()" class="logout">تسجيل خروج</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js"></script>
+
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyBkOM7eSnUJ0B_3Mx4wVyh-lTvFEAhxWas",
+    authDomain: "tama-6219c.firebaseapp.com",
+    databaseURL: "https://tama-6219c-default-rtdb.firebaseio.com",
+    projectId: "tama-6219c",
+    storageBucket: "tama-6219c.appspot.com",
+    messagingSenderId: "285162278384",
+    appId: "1:285162278384:web:8264d5439564660b616135"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+let allRequests = [];
+let currentPage = 1;
+const itemsPerPage = 15;
+
+// بيانات المدن
+const saudiCities = [
+    "الرياض", "جدة", "الدمام", "مكة المكرمة", "المدينة المنورة", "الخرج",
+    "بريدة", "الطائف", "تبوك", "أبها", "حائل", "سكاكا", "عرعر", "جازان",
+    "نجران", "الباحة", "عنيزة", "الظهران", "الخبر", "حفر الباطن"
+];
+
+// أنواع السيارات
+const carTypes = {
+    "peugeot301": "بيجو 301",
+    "kiaSportage": "كيا سبورتاج",
+    "gmcSierra": "GMC سييرا",
+    "pegas": "بيجاس",
+    "dieselTruck": "شاحنة ديزل",
+    "sedan": "سيدان عادية",
+    "suv": "SUV"
+};
+
+function login() {
+    const user = document.getElementById("user").value;
+    const pass = document.getElementById("pass").value;
+    
+    // بيانات الدخول الافتراضية (يمكن تغييرها)
+    if (user === "admin" && pass === "admin123") {
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("admin").style.display = "block";
+        loadRequests();
+    } else {
+        alert("❌ اسم المستخدم أو كلمة المرور غير صحيحة");
+    }
+}
+
+function logout() {
+    document.getElementById("loginBox").style.display = "block";
+    document.getElementById("admin").style.display = "none";
+    document.getElementById("user").value = "";
+    document.getElementById("pass").value = "";
+}
+
+function loadRequests() {
+    const tbl = document.getElementById("tblReq");
+    const statsDiv = document.getElementById("stats");
+    tbl.innerHTML = '<tr><td colspan="10">جارٍ تحميل البيانات...</td></tr>';
+    
+    db.ref("fuel_requests").once("value", snapshot => {
+        allRequests = [];
+        let totalCost = 0;
+        let totalDistance = 0;
+        let totalFuel = 0;
+        let cityCounts = {};
+        
+        snapshot.forEach(s => {
+            const request = s.val();
+            request.id = s.key;
+            allRequests.unshift(request); // إضافة في البداية لعرض الأحدث أولاً
+            
+            // جمع الإحصائيات
+            totalCost += parseFloat(request.cost) || 0;
+            totalDistance += parseFloat(request.km) || 0;
+            totalFuel += parseFloat(request.liters) || 0;
+            
+            // عد الطلبات لكل مدينة
+            cityCounts[request.from] = (cityCounts[request.from] || 0) + 1;
+            cityCounts[request.to] = (cityCounts[request.to] || 0) + 1;
+        });
+        
+        // تحديث الإحصائيات
+        statsDiv.innerHTML = `
+            <div class="stat-box">
+                <div class="stat-value">${allRequests.length}</div>
+                <div class="stat-label">عدد الطلبات</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${totalCost.toFixed(2)}</div>
+                <div class="stat-label">إجمالي التكلفة (ريال)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${totalDistance.toFixed(1)}</div>
+                <div class="stat-label">إجمالي المسافة (كم)</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">${totalFuel.toFixed(1)}</div>
+                <div class="stat-label">إجمالي الوقود (لتر)</div>
+            </div>
+        `;
+        
+        // تحديث عوامل التصفية
+        updateFilters();
+        
+        // عرض البيانات
+        displayPage(1);
+    });
+}
+
+function updateFilters() {
+    const cityFilter = document.getElementById("filterCity");
+    const carFilter = document.getElementById("filterCar");
+    
+    // تحديث قائمة المدن
+    cityFilter.innerHTML = '<option value="">جميع المدن</option>';
+    const citiesSet = new Set();
+    allRequests.forEach(req => {
+        citiesSet.add(req.from);
+        citiesSet.add(req.to);
+    });
+    Array.from(citiesSet).sort().forEach(city => {
+        const option = document.createElement("option");
+        option.value = city;
+        option.textContent = city;
+        cityFilter.appendChild(option);
+    });
+    
+    // تحديث قائمة السيارات
+    carFilter.innerHTML = '<option value="">جميع السيارات</option>';
+    Object.entries(carTypes).forEach(([key, name]) => {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = name;
+        carFilter.appendChild(option);
+    });
+}
+
+function filterTable() {
+    const city = document.getElementById("filterCity").value;
+    const car = document.getElementById("filterCar").value;
+    const fuel = document.getElementById("filterFuel").value;
+    const date = document.getElementById("filterDate").value;
+    
+    let filtered = allRequests;
+    
+    if (city) {
+        filtered = filtered.filter(req => req.from === city || req.to === city);
+    }
+    
+    if (car) {
+        filtered = filtered.filter(req => req.car === car);
+    }
+    
+    if (fuel) {
+        filtered = filtered.filter(req => req.fuel === fuel);
+    }
+    
+    if (date) {
+        filtered = filtered.filter(req => {
+            const reqDate = new Date(req.timestamp || req.date);
+            const filterDate = new Date(date);
+            return reqDate.toDateString() === filterDate.toDateString();
+        });
+    }
+    
+    allRequests = filtered;
+    displayPage(1);
+    updateFilters(); // تحديث الفلاتر بعد التصفية
+}
+
+function clearFilters() {
+    document.getElementById("filterCity").value = "";
+    document.getElementById("filterCar").value = "";
+    document.getElementById("filterFuel").value = "";
+    document.getElementById("filterDate").value = "";
+    loadRequests(); // إعادة تحميل جميع البيانات
+}
+
+function displayPage(page) {
+    currentPage = page;
+    const tbl = document.getElementById("tblReq");
+    const pagination = document.getElementById("pagination");
+    
+    // حساب الصفحات
+    const totalPages = Math.ceil(allRequests.length / itemsPerPage);
+    const startIndex = (page - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageRequests = allRequests.slice(startIndex, endIndex);
+    
+    // عرض البيانات
+    tbl.innerHTML = "";
+    
+    if (pageRequests.length === 0) {
+        tbl.innerHTML = '<tr><td colspan="10">لا توجد بيانات لعرضها</td></tr>';
+    } else {
+        pageRequests.forEach((req, index) => {
+            const tr = document.createElement("tr");
+            const carName = carTypes[req.car] || req.car;
+            const fuelName = getFuelName(req.fuel);
+            const globalIndex = startIndex + index + 1;
+            
+            tr.innerHTML = `
+                <td>${globalIndex}</td>
+                <td>${req.from}</td>
+                <td>${req.to}</td>
+                <td>${parseFloat(req.km).toFixed(1)}</td>
+                <td>${parseFloat(req.liters).toFixed(1)}</td>
+                <td>${parseFloat(req.cost).toFixed(2)}</td>
+                <td>${carName}</td>
+                <td>${fuelName}</td>
+                <td>${req.date || new Date(req.timestamp).toLocaleString('ar-SA')}</td>
+                <td>
+                    <button onclick="deleteRequest('${req.id}')" style="padding: 5px 10px; background: #dc3545; font-size: 12px;">
+                        حذف
+                    </button>
+                </td>
+            `;
+            tbl.appendChild(tr);
+        });
+    }
+    
+    // عرض أزرار الصفحات
+    pagination.innerHTML = "";
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement("div");
+        btn.className = `page-btn ${i === page ? 'active' : ''}`;
+        btn.textContent = i;
+        btn.onclick = () => displayPage(i);
+        pagination.appendChild(btn);
+    }
+}
+
+function getFuelName(fuelCode) {
+    const names = {
+        '91': 'بنزين 91',
+        '95': 'بنزين 95',
+        'diesel': 'ديزل'
+    };
+    return names[fuelCode] || fuelCode;
+}
+
+function deleteRequest(id) {
+    if (confirm("هل أنت متأكد من حذف هذا الطلب؟")) {
+        db.ref(`fuel_requests/${id}`).remove()
+            .then(() => {
+                alert("✅ تم حذف الطلب بنجاح");
+                loadRequests();
+            })
+            .catch(error => {
+                alert("❌ حدث خطأ أثناء الحذف");
+                console.error(error);
+            });
+    }
+}
+
+function exportData() {
+    // تحويل البيانات إلى CSV
+    let csv = "من,إلى,المسافة (كم),الوقود (لتر),التكلفة (ريال),السيارة,نوع الوقود,التاريخ\n";
+    
+    allRequests.forEach(req => {
+        const carName = carTypes[req.car] || req.car;
+        const fuelName = getFuelName(req.fuel);
+        csv += `"${req.from}","${req.to}","${req.km}","${req.liters}","${req.cost}","${carName}","${fuelName}","${req.date}"\n`;
+    });
+    
+    // إنشاء ملف وتنزيله
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `طلبات_الوقود_${new Date().toISOString().slice(0,10)}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+</body>
+</html>
