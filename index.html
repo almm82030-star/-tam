@@ -53,6 +53,7 @@
         
         .form-group {
             margin-bottom: 30px;
+            position: relative;
         }
         
         .form-label {
@@ -286,6 +287,61 @@
             color: #ffcc00 !important;
             font-size: 24px !important;
         }
+        
+        /* حقل البحث */
+        .city-search {
+            width: 100%;
+            padding: 12px 20px;
+            margin-bottom: 10px;
+            background: #1a1a3d;
+            border: 2px solid #2d2d66;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Tajawal', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .city-search:focus {
+            outline: none;
+            border-color: #4d79ff;
+            box-shadow: 0 0 0 3px rgba(77, 121, 255, 0.2);
+        }
+        
+        .city-search::placeholder {
+            color: #a0a0c0;
+        }
+        
+        /* نتائج البحث */
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #1a1a3d;
+            border: 2px solid #2d2d66;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .search-result-item {
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #2d2d66;
+        }
+        
+        .search-result-item:hover {
+            background: #23234d;
+        }
+        
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body>
@@ -298,20 +354,24 @@
         <div class="form-container">
             <div class="form-group">
                 <label class="form-label">من</label>
+                <input type="text" class="city-search" id="fromSearch" placeholder="🔍 ابحث عن المدينة...">
                 <div class="select-wrapper">
                     <select id="from">
                         <option value="">اختر المدينة</option>
                     </select>
                 </div>
+                <div class="search-results" id="fromResults"></div>
             </div>
             
             <div class="form-group">
                 <label class="form-label">إلى</label>
+                <input type="text" class="city-search" id="toSearch" placeholder="🔍 ابحث عن المدينة...">
                 <div class="select-wrapper">
                     <select id="to">
                         <option value="">اختر المدينة</option>
                     </select>
                 </div>
+                <div class="search-results" id="toResults"></div>
             </div>
             
             <div class="row">
@@ -319,13 +379,27 @@
                     <label class="form-label">نوع السيارة</label>
                     <div class="select-wrapper">
                         <select id="carModel">
+                            <!-- السيارات القديمة -->
                             <option value="peugeot301">بيجو 301 (سيدان)</option>
-                            <option value="sedan">سيدان عادية</option>
+                            <option value="sedan">سيارة سيدان عادية</option>
                             <option value="kiaSportage">كيا سبورتاج (SUV)</option>
                             <option value="suv">SUV أخرى</option>
                             <option value="gmcSierra">GMC سييرا (شاحنة)</option>
                             <option value="pegas">بيجاس (مبردة)</option>
-                            <option value="dieselTruck">شاحنة ديزل</option>
+                            <option value="dieselTruck">شاحنة ديزل عامة</option>
+                            
+                            <!-- السيارات الجديدة المضافة -->
+                            <option value="peugeot">بيجو (عام)</option>
+                            <option value="kiaPegas">كيا بيغاس</option>
+                            <option value="toyotaHiace">تويوتا هايس</option>
+                            <option value="suzukiDzire">سوزوكي دزير</option>
+                            <option value="kizashi">كيزاشي</option>
+                            <option value="nissan">نيسان (عام)</option>
+                            <option value="hyundaiAccent">هيونداي اكسنت</option>
+                            <option value="gmcPickup">جي ام سي بيك اب</option>
+                            <option value="gmcTruck">جي ام سي شاحنة</option>
+                            <option value="renaultMaster">رينو ماستر</option>
+                            <option value="toyotaVan">تويوتا فان</option>
                         </select>
                     </div>
                 </div>
@@ -365,8 +439,8 @@
                         <div class="result-value cost-value" id="totalCost">-- ريال</div>
                     </div>
                     <div class="result-item">
-                        <div class="result-label">متوسط الاستهلاك</div>
-                        <div class="result-value" id="consumption">-- كم/لتر</div>
+                        <div class="result-label">وقت الرحلة</div>
+                        <div class="result-value" id="duration">-- ساعة</div>
                     </div>
                 </div>
             </div>
@@ -457,17 +531,34 @@
         // تعيين قيم افتراضية للاختبار
         fromSelect.value = "الرياض";
         toSelect.value = "جدة";
+        
+        // تهيئة البحث
+        setupCitySearch();
     });
 
     // ---- استهلاك السيارات ----
     const carConsumption = {
-        "peugeot301": 14,
-        "sedan": 12,
-        "kiaSportage": 10,
-        "suv": 9,
-        "gmcSierra": 8,
-        "pegas": 12,
-        "dieselTruck": 10
+        // السيارات القديمة
+        "peugeot301": 14,      // بيجو 301
+        "sedan": 12,           // سيدان عادية
+        "kiaSportage": 10,     // كيا سبورتاج
+        "suv": 9,              // SUV أخرى
+        "gmcSierra": 8,        // GMC سييرا
+        "pegas": 12,           // بيجاس
+        "dieselTruck": 10,     // شاحنة ديزل
+        
+        // السيارات الجديدة المضافة
+        "peugeot": 13,         // بيجو (عام)
+        "kiaPegas": 15,        // كيا بيغاس
+        "toyotaHiace": 9,      // تويوتا هايس (فان)
+        "suzukiDzire": 16,     // سوزوكي دزير (اقتصادية)
+        "kizashi": 12,         // كيزاشي (سيدان متوسطة)
+        "nissan": 11,          // نيسان (عام)
+        "hyundaiAccent": 15,   // هيونداي اكسنت (اقتصادية)
+        "gmcPickup": 7,        // جي ام سي بيك اب
+        "gmcTruck": 6,         // جي ام سي شاحنة
+        "renaultMaster": 8,    // رينو ماستر (فان تجاري)
+        "toyotaVan": 9         // تويوتا فان
     };
 
     // ---- أسعار الوقود ----
@@ -477,12 +568,148 @@
         "diesel": 1.66
     };
 
+    // ---- إعداد البحث في المدن ----
+    function setupCitySearch() {
+        const fromSearch = document.getElementById('fromSearch');
+        const toSearch = document.getElementById('toSearch');
+        const fromResults = document.getElementById('fromResults');
+        const toResults = document.getElementById('toResults');
+        const fromSelect = document.getElementById('from');
+        const toSelect = document.getElementById('to');
+
+        // وظيفة البحث للمدينة المبدأ
+        fromSearch.addEventListener('input', function() {
+            const searchText = this.value.trim().toLowerCase();
+            
+            if (searchText.length < 1) {
+                fromResults.style.display = 'none';
+                return;
+            }
+            
+            // البحث في المدن
+            const results = saudiCities.filter(city => 
+                city.toLowerCase().includes(searchText)
+            );
+            
+            displaySearchResults(results, fromResults, fromSelect, fromSearch);
+        });
+        
+        // وظيفة البحث للمدينة الوجهة
+        toSearch.addEventListener('input', function() {
+            const searchText = this.value.trim().toLowerCase();
+            
+            if (searchText.length < 1) {
+                toResults.style.display = 'none';
+                return;
+            }
+            
+            // البحث في المدن
+            const results = saudiCities.filter(city => 
+                city.toLowerCase().includes(searchText)
+            );
+            
+            displaySearchResults(results, toResults, toSelect, toSearch);
+        });
+        
+        // إخفاء نتائج البحث عند النقر خارجها
+        document.addEventListener('click', function(e) {
+            if (!fromSearch.contains(e.target) && !fromResults.contains(e.target)) {
+                fromResults.style.display = 'none';
+            }
+            if (!toSearch.contains(e.target) && !toResults.contains(e.target)) {
+                toResults.style.display = 'none';
+            }
+        });
+        
+        // تحديث حقل البحث عند اختيار مدينة من القائمة
+        fromSelect.addEventListener('change', function() {
+            fromSearch.value = this.value;
+            fromResults.style.display = 'none';
+        });
+        
+        toSelect.addEventListener('change', function() {
+            toSearch.value = this.value;
+            toResults.style.display = 'none';
+        });
+        
+        // إظهار نتائج البحث عند التركيز على حقل البحث
+        fromSearch.addEventListener('focus', function() {
+            if (this.value.trim().length > 0) {
+                const searchText = this.value.trim().toLowerCase();
+                const results = saudiCities.filter(city => 
+                    city.toLowerCase().includes(searchText)
+                );
+                displaySearchResults(results, fromResults, fromSelect, fromSearch);
+            }
+        });
+        
+        toSearch.addEventListener('focus', function() {
+            if (this.value.trim().length > 0) {
+                const searchText = this.value.trim().toLowerCase();
+                const results = saudiCities.filter(city => 
+                    city.toLowerCase().includes(searchText)
+                );
+                displaySearchResults(results, toResults, toSelect, toSearch);
+            }
+        });
+    }
+    
+    // ---- عرض نتائج البحث ----
+    function displaySearchResults(results, resultsContainer, selectElement, searchInput) {
+        resultsContainer.innerHTML = '';
+        
+        if (results.length === 0) {
+            const noResult = document.createElement('div');
+            noResult.className = 'search-result-item';
+            noResult.textContent = 'لا توجد نتائج';
+            resultsContainer.appendChild(noResult);
+        } else {
+            results.forEach(city => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'search-result-item';
+                resultItem.textContent = city;
+                
+                resultItem.addEventListener('click', function() {
+                    // تحديث القائمة المنسدلة
+                    selectElement.value = city;
+                    // تحديث حقل البحث
+                    searchInput.value = city;
+                    // إخفاء نتائج البحث
+                    resultsContainer.style.display = 'none';
+                });
+                
+                resultsContainer.appendChild(resultItem);
+            });
+        }
+        
+        resultsContainer.style.display = 'block';
+    }
+
     // ---- حساب التكلفة ----
     async function calculate() {
-        const from = document.getElementById('from').value;
-        const to = document.getElementById('to').value;
+        const fromSelect = document.getElementById('from');
+        const toSelect = document.getElementById('to');
+        const fromSearch = document.getElementById('fromSearch');
+        const toSearch = document.getElementById('toSearch');
         const carModel = document.getElementById('carModel').value;
         const fuelType = document.getElementById('fuelType').value;
+        
+        // الحصول على القيمة من حقل البحث أو القائمة المنسدلة
+        let from = fromSelect.value;
+        let to = toSelect.value;
+        
+        // إذا كانت القائمة المنسدلة فارغة، استخدم حقل البحث
+        if (!from && fromSearch.value) {
+            from = fromSearch.value;
+            // تحديث القائمة المنسدلة
+            fromSelect.value = from;
+        }
+        
+        if (!to && toSearch.value) {
+            to = toSearch.value;
+            // تحديث القائمة المنسدلة
+            toSelect.value = to;
+        }
         
         // التحقق من المدخلات
         if (!from || !to) {
@@ -495,6 +722,17 @@
             return;
         }
         
+        // التحقق من أن المدينة موجودة في القائمة
+        if (!saudiCities.includes(from)) {
+            alert(`المدينة "${from}" غير موجودة في القائمة. يرجى اختيار مدينة صحيحة.`);
+            return;
+        }
+        
+        if (!saudiCities.includes(to)) {
+            alert(`المدينة "${to}" غير موجودة في القائمة. يرجى اختيار مدينة صحيحة.`);
+            return;
+        }
+        
         // إظهار مؤشر التحميل
         const loading = document.getElementById('loading');
         const resultContainer = document.getElementById('result');
@@ -503,12 +741,15 @@
         
         try {
             // الحصول على المسافة
-            const distance = await getDistance(from, to);
+            const routeInfo = await getRouteInfo(from, to);
             
-            if (distance > 0) {
+            if (routeInfo && routeInfo.distance) {
                 // الحسابات
                 const consumptionRate = carConsumption[carModel] || 12;
                 const fuelPrice = fuelPrices[fuelType] || 2.18;
+                const distance = routeInfo.distance;
+                const duration = routeInfo.duration;
+                
                 const fuelNeeded = distance / consumptionRate;
                 const totalCost = fuelNeeded * fuelPrice;
                 
@@ -516,13 +757,13 @@
                 document.getElementById('distance').textContent = distance.toFixed(1) + " كم";
                 document.getElementById('fuelNeeded').textContent = fuelNeeded.toFixed(1) + " لتر";
                 document.getElementById('totalCost').textContent = totalCost.toFixed(2) + " ريال";
-                document.getElementById('consumption').textContent = consumptionRate + " كم/لتر";
+                document.getElementById('duration').textContent = duration;
                 
                 // إظهار النتائج
                 resultContainer.style.display = 'block';
                 
                 // حفظ في قاعدة البيانات
-                saveToDatabase(from, to, distance, fuelNeeded, totalCost, carModel, fuelType);
+                saveToDatabase(from, to, distance, fuelNeeded, totalCost, carModel, fuelType, duration);
             } else {
                 alert("تعذر حساب المسافة. يرجى المحاولة مرة أخرى.");
             }
@@ -535,24 +776,61 @@
         }
     }
 
-    // ---- حساب المسافة ----
-    function getDistance(origin, destination) {
+    // ---- الحصول على معلومات المسار ----
+    function getRouteInfo(origin, destination) {
         return new Promise((resolve, reject) => {
             const service = new google.maps.DirectionsService();
             
             service.route({
                 origin: origin + ', السعودية',
                 destination: destination + ', السعودية',
-                travelMode: google.maps.TravelMode.DRIVING
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: google.maps.UnitSystem.METRIC
             }, (result, status) => {
                 if (status === 'OK') {
                     const distanceInMeters = result.routes[0].legs[0].distance.value;
                     const distanceInKm = distanceInMeters / 1000;
-                    resolve(distanceInKm);
+                    
+                    // حساب وقت الرحلة
+                    const durationInSeconds = result.routes[0].legs[0].duration.value;
+                    const durationHours = Math.floor(durationInSeconds / 3600);
+                    const durationMinutes = Math.floor((durationInSeconds % 3600) / 60);
+                    
+                    let durationText = '';
+                    if (durationHours > 0) {
+                        durationText = `${durationHours} ساعة`;
+                        if (durationMinutes > 0) {
+                            durationText += ` و ${durationMinutes} دقيقة`;
+                        }
+                    } else {
+                        durationText = `${durationMinutes} دقيقة`;
+                    }
+                    
+                    resolve({
+                        distance: distanceInKm,
+                        duration: durationText
+                    });
                 } else {
                     // إذا فشل Google Maps، استخدم تقدير تقريبي
                     console.warn("Google Maps فشل، استخدام تقدير تقريبي");
-                    resolve(estimateDistance(origin, destination));
+                    const estimatedDistance = estimateDistance(origin, destination);
+                    const estimatedHours = Math.floor(estimatedDistance / 80);
+                    const estimatedMinutes = Math.floor((estimatedDistance % 80) / 80 * 60);
+                    
+                    let estimatedDuration = '';
+                    if (estimatedHours > 0) {
+                        estimatedDuration = `${estimatedHours} ساعة`;
+                        if (estimatedMinutes > 0) {
+                            estimatedDuration += ` و ${estimatedMinutes} دقيقة`;
+                        }
+                    } else {
+                        estimatedDuration = `${estimatedMinutes} دقيقة`;
+                    }
+                    
+                    resolve({
+                        distance: estimatedDistance,
+                        duration: estimatedDuration
+                    });
                 }
             });
         });
@@ -616,7 +894,7 @@
     }
 
     // ---- حفظ في قاعدة البيانات ----
-    function saveToDatabase(from, to, distance, fuelNeeded, totalCost, carModel, fuelType) {
+    function saveToDatabase(from, to, distance, fuelNeeded, totalCost, carModel, fuelType, duration) {
         try {
             // تهيئة Firebase
             const firebaseConfig = {
@@ -643,6 +921,7 @@
                 totalCost: totalCost.toFixed(2),
                 carModel: carModel,
                 fuelType: fuelType,
+                duration: duration,
                 timestamp: new Date().toISOString(),
                 date: new Date().toLocaleString('ar-SA')
             };
@@ -659,83 +938,6 @@
             console.error('❌ خطأ في الاتصال بقاعدة البيانات:', error);
         }
     }
-    
-    // ---- تحسين تجربة المستخدم: إضافة البحث في القوائم ----
-    function setupCitySearch() {
-        const fromSelect = document.getElementById('from');
-        const toSelect = document.getElementById('to');
-        
-        // إضافة حقل بحث للمدينة المبدأ
-        const fromSearch = document.createElement('input');
-        fromSearch.type = 'text';
-        fromSearch.placeholder = '🔍 ابحث عن مدينة...';
-        fromSearch.style.cssText = `
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 5px;
-            border-radius: 8px;
-            border: 1px solid #2d2d66;
-            background: #1a1a3d;
-            color: white;
-            font-family: 'Tajawal', sans-serif;
-        `;
-        fromSelect.parentNode.insertBefore(fromSearch, fromSelect);
-        
-        // إضافة حقل بحث للمدينة الوجهة
-        const toSearch = document.createElement('input');
-        toSearch.type = 'text';
-        toSearch.placeholder = '🔍 ابحث عن مدينة...';
-        toSearch.style.cssText = `
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 5px;
-            border-radius: 8px;
-            border: 1px solid #2d2d66;
-            background: #1a1a3d;
-            color: white;
-            font-family: 'Tajawal', sans-serif;
-        `;
-        toSelect.parentNode.insertBefore(toSearch, toSelect);
-        
-        // وظيفة البحث للمدينة المبدأ
-        fromSearch.addEventListener('input', function() {
-            const searchText = this.value.toLowerCase();
-            const options = fromSelect.options;
-            
-            for (let i = 0; i < options.length; i++) {
-                const option = options[i];
-                const optionText = option.text.toLowerCase();
-                
-                if (searchText === '' || optionText.includes(searchText)) {
-                    option.style.display = '';
-                } else {
-                    option.style.display = 'none';
-                }
-            }
-        });
-        
-        // وظيفة البحث للمدينة الوجهة
-        toSearch.addEventListener('input', function() {
-            const searchText = this.value.toLowerCase();
-            const options = toSelect.options;
-            
-            for (let i = 0; i < options.length; i++) {
-                const option = options[i];
-                const optionText = option.text.toLowerCase();
-                
-                if (searchText === '' || optionText.includes(searchText)) {
-                    option.style.display = '';
-                } else {
-                    option.style.display = 'none';
-                }
-            }
-        });
-    }
-    
-    // استدعاء دالة البحث بعد تحميل الصفحة
-    window.onload = function() {
-        setupCitySearch();
-    };
     </script>
 </body>
 </html>
