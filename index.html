@@ -3,496 +3,646 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تم - حساب تكلفة الوقود</title>
+    <title>حساب تكلفة الوقود</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #111 0%, #222 100%);
-            color: white;
-            margin: 0;
-            padding: 20px;
-            text-align: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
             min-height: 100vh;
-        }
-        .card {
-            background: #1c1c1c;
-            padding: 25px;
-            margin: 20px auto;
-            border-radius: 18px;
-            max-width: 700px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid #333;
-        }
-        input, select, button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 12px;
-            border-radius: 12px;
-            border: 1px solid #444;
-            font-size: 16px;
-            box-sizing: border-box;
-            font-family: 'Tajawal', sans-serif;
-        }
-        input, select {
-            background: #2a2a2a;
-            color: white;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
-        }
-        button {
-            background: linear-gradient(to right, #0d6efd, #0b5ed7);
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(13, 110, 253, 0.4);
-        }
-        .logo {
-            width: 180px;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
-        }
-        .flex {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            gap: 15px;
-        }
-        .lang-switch {
-            width: 40px;
-            height: 30px;
-            cursor: pointer;
-            border-radius: 6px;
-            transition: transform 0.3s;
-            border: 2px solid transparent;
-        }
-        .lang-switch:hover {
-            transform: scale(1.1);
-        }
-        .lang-switch.active {
-            border-color: #0d6efd;
-        }
-        #result {
-            margin-top: 25px;
-            font-size: 18px;
-            font-weight: bold;
             padding: 20px;
-            background: rgba(13, 110, 253, 0.1);
-            border-radius: 12px;
-            border-right: 5px solid #0d6efd;
-            text-align: right;
-            line-height: 1.8;
         }
-        h3 {
-            margin-top: 0;
-            color: #0d6efd;
-            font-size: 24px;
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
         }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            color: #fff;
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            color: #a0a0c0;
+            font-size: 16px;
+        }
+        
+        .form-container {
+            background: #23234d;
+            border-radius: 25px;
+            padding: 35px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            border: 1px solid #2d2d66;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+        }
+        
+        .form-label {
+            display: block;
+            color: #a0a0c0;
+            margin-bottom: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            padding-right: 10px;
+        }
+        
+        .select-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        .select-wrapper::after {
+            content: "▼";
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0a0c0;
+            font-size: 14px;
+            pointer-events: none;
+        }
+        
+        select {
+            width: 100%;
+            padding: 18px 20px;
+            padding-left: 45px;
+            background: #1a1a3d;
+            border: 2px solid #2d2d66;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 18px;
+            font-family: 'Tajawal', sans-serif;
+            font-weight: 500;
+            appearance: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #4d79ff;
+            box-shadow: 0 0 0 3px rgba(77, 121, 255, 0.2);
+        }
+        
+        select:hover {
+            border-color: #3a3a7d;
+        }
+        
+        option {
+            background: #1a1a3d;
+            color: #fff;
+            padding: 15px;
+            font-size: 16px;
+        }
+        
         .row {
             display: flex;
-            gap: 15px;
-            margin-top: 15px;
+            gap: 20px;
+            margin-bottom: 30px;
         }
-        .row > * {
+        
+        .col {
             flex: 1;
         }
-        .note {
-            margin-top: 15px;
-            color: #aaa;
-            font-size: 14px;
+        
+        .separator {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #2d2d66, transparent);
+            margin: 35px 0;
         }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 22px;
+            background: linear-gradient(135deg, #4d79ff 0%, #3366ff 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 20px;
+            font-weight: 700;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 10px 25px rgba(77, 121, 255, 0.3);
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(77, 121, 255, 0.4);
+            background: linear-gradient(135deg, #5c87ff 0%, #4075ff 100%);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .result-container {
+            background: rgba(26, 26, 61, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            border: 1px solid #2d2d66;
+            display: none;
+        }
+        
+        .result-title {
+            color: #4d79ff;
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .result-item {
+            background: #1a1a3d;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #2d2d66;
+        }
+        
+        .result-label {
+            color: #a0a0c0;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            color: #fff;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
         .loading {
             display: none;
-            margin: 20px auto;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
             width: 40px;
             height: 40px;
-            border: 4px solid #333;
-            border-top: 4px solid #0d6efd;
+            border: 4px solid rgba(77, 121, 255, 0.2);
+            border-top: 4px solid #4d79ff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        .logo {
+            width: 120px;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+        }
+        
+        /* زر لوحة التحكم */
+        .admin-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto 0;
+            padding: 12px 25px;
+            background: rgba(77, 121, 255, 0.1);
+            color: #4d79ff;
+            border: 1px solid #4d79ff;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .admin-btn:hover {
+            background: rgba(77, 121, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        /* تحسينات للجوال */
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .form-container {
+                padding: 25px;
+            }
+            
+            .row {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .header h1 {
+                font-size: 28px;
+            }
+            
+            select {
+                font-size: 16px;
+                padding: 16px 20px;
+                padding-left: 45px;
+            }
+            
+            .calculate-btn {
+                padding: 20px;
+                font-size: 18px;
+            }
+        }
+        
+        /* ألوان للقيم المهمة */
+        .important-value {
+            color: #4dff4d !important;
+        }
+        
+        .cost-value {
+            color: #ffcc00 !important;
+            font-size: 24px !important;
+        }
     </style>
 </head>
 <body>
-
-<img class="logo" src="https://i.ibb.co/yFCW2v98/Untitled.webp" alt="شعار تم">
-
-<div class="flex">
-    <img src="https://i.ibb.co/NjQv3H5/saudi-flag.png" class="lang-switch active" id="lang-ar" title="عربي">
-    <img src="https://upload.wikimedia.org/wikipedia/en/a/ae/Flag_of_the_United_Kingdom.svg" class="lang-switch" id="lang-en" title="English">
-</div>
-
-<div class="card">
-    <h3>حساب تكلفة الوقود</h3>
-    
-    <div class="row">
-        <div>
-            <label for="from">من</label>
-            <select id="from">
-                <option value="">اختر المدينة</option>
-                <!-- سيتم ملؤها بالمدن -->
-            </select>
+    <div class="container">
+        <div class="header">
+            <h1>حساب تكلفة الوقود</h1>
+            <p>احسب تكلفة رحلتك بسهولة ودقة</p>
         </div>
-        <div>
-            <label for="to">إلى</label>
-            <select id="to">
-                <option value="">اختر المدينة</option>
-                <!-- سيتم ملؤها بالمدن -->
-            </select>
-        </div>
-    </div>
-    
-    <div class="row">
-        <div>
-            <label for="carModel">نوع السيارة</label>
-            <select id="carModel">
-                <option value="peugeot301">بيجو 301 (سيدان)</option>
-                <option value="kiaSportage">كيا سبورتاج (SUV)</option>
-                <option value="gmcSierra">GMC سييرا (شاحنة)</option>
-                <option value="pegas">بيجاس (مبردة)</option>
-                <option value="dieselTruck">شاحنة ديزل</option>
-                <option value="sedan">سيدان عادية (متوسط استهلاك)</option>
-                <option value="suv">SUV (دفع رباعي)</option>
-            </select>
-        </div>
-        <div>
-            <label for="fuelType">نوع الوقود</label>
-            <select id="fuelType">
-                <option value="91">بنزين 91</option>
-                <option value="95">بنزين 95</option>
-                <option value="diesel">ديزل</option>
-            </select>
-        </div>
-    </div>
-
-    <div class="loading" id="loading"></div>
-    
-    <button onclick="calculate()">احسب التكلفة الآن</button>
-    
-    <div id="result"></div>
-    
-    <div class="note">
-        * الأسعار تقريبية وقد تختلف حسب حركة المرور والحالة الفنية للسيارة
-    </div>
-    
-    <button onclick="window.location.href='admin.html'" style="background: linear-gradient(to right, #28a745, #1e7e34); margin-top: 25px;">
-        لوحة التحكم للمشرف
-    </button>
-</div>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js"></script>
-
-<!-- Google Maps JS API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwQ-uZOQQSh7JTxI5MojlwXgdva1Vc738&libraries=places&language=ar&region=SA"></script>
-
-<script>
-// ---- CONFIG ----
-// ملاحظة: يجب استبدال هذه المفاتيح بمفاتيح صالحة خاصة بك
-const firebaseConfig = {
-    apiKey: "AIzaSyBkOM7eSnUJ0B_3Mx4wVyh-lTvFEAhxWas",
-    authDomain: "tama-6219c.firebaseapp.com",
-    databaseURL: "https://tama-6219c-default-rtdb.firebaseio.com",
-    projectId: "tama-6219c",
-    storageBucket: "tama-6219c.appspot.com",
-    messagingSenderId: "285162278384",
-    appId: "1:285162278384:web:8264d5439564660b616135"
-};
-
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-// ---- بيانات المدن السعودية ----
-const saudiCities = [
-    // منطقة الرياض
-    "الرياض", "الخرج", "الدوادمي", "المزاحمية", "الدرعية", "شقراء", "القويعية", 
-    "الزلفي", "المجمعة", "وادي الدواسر", "الغاط", "حوطة بني تميم", "الأفلاج", 
-    "السليل", "رماح", "ثادق", "حريملاء",
-    
-    // منطقة مكة المكرمة
-    "مكة المكرمة", "جدة", "الطائف", "الليث", "القنفذة", "الكامل", "الجموم",
-    "بحرة", "تربة", "الخرمة", "رنية",
-    
-    // منطقة المدينة المنورة
-    "المدينة المنورة", "ينبع", "العلا", "بدر", "الحناكية", "المهد",
-    
-    // منطقة القصيم
-    "بريدة", "عنيزة", "الرس", "البكيرية", "المذنب", "البدائع", "رياض الخبراء",
-    "النبهانية", "عيون الجواء", "الأسياح", "الشماسية",
-    
-    // المنطقة الشرقية
-    "الدمام", "الخبر", "الظهران", "الأحساء", "القطيف", "الجبيل", "الخفجي",
-    "حفر الباطن", "قرية العليا", "النعيرية", "بقيق",
-    
-    // منطقة عسير
-    "أبها", "خميس مشيط", "ظهران الجنوب", "بيشة", "محايل عسير", "رجال ألمع",
-    "سراة عبيدة", "المجاردة", "النماص", "تنومة",
-    
-    // منطقة تبوك
-    "تبوك", "ضباء", "الوجه", "أملج", "تيماء", "حقل",
-    
-    // منطقة حائل
-    "حائل", "بقعاء", "الشنان", "الغزالة",
-    
-    // منطقة الجوف
-    "سكاكا", "القريات", "دومة الجندل",
-    
-    // منطقة الحدود الشمالية
-    "عرعر", "رفحاء", "طريف", "العويقيلة",
-    
-    // منطقة جازان
-    "جازان", "صبيا", "صامطة", "أبو عريش", "العارضة", "الدرب", "بيش", "فرسان",
-    
-    // منطقة نجران
-    "نجران", "شرورة", "حبونا",
-    
-    // منطقة الباحة
-    "الباحة", "المخواة", "المندق", "القرى", "العقيق"
-];
-
-// ---- استهلاك السيارات ----
-const carConsumptionMap = {
-    "peugeot301": 14,
-    "kiaSportage": 10,
-    "gmcSierra": 8,
-    "pegas": 12,
-    "dieselTruck": 10,
-    "sedan": 12,
-    "suv": 9
-};
-
-// ---- أسعار الوقود ----
-const fuelPriceMap = {
-    "91": 2.18,
-    "95": 2.33,
-    "diesel": 1.66
-};
-
-// ---- تهيئة الصفحة ----
-window.onload = function() {
-    // تعبئة قوائم المدن
-    const fromSelect = document.getElementById('from');
-    const toSelect = document.getElementById('to');
-    
-    saudiCities.forEach(city => {
-        const option1 = document.createElement('option');
-        option1.value = city;
-        option1.textContent = city;
-        fromSelect.appendChild(option1);
         
-        const option2 = document.createElement('option');
-        option2.value = city;
-        option2.textContent = city;
-        toSelect.appendChild(option2);
-    });
-    
-    // حفظ التاريخ الأخير
-    const lastFrom = localStorage.getItem('lastFrom');
-    const lastTo = localStorage.getItem('lastTo');
-    if (lastFrom) fromSelect.value = lastFrom;
-    if (lastTo) toSelect.value = lastTo;
-    
-    // تهيئة تبديل اللغة
-    document.getElementById('lang-ar').onclick = () => {
-        document.body.dir = 'rtl';
-        document.getElementById('lang-ar').classList.add('active');
-        document.getElementById('lang-en').classList.remove('active');
-        updateLanguage('ar');
-    };
-    
-    document.getElementById('lang-en').onclick = () => {
-        document.body.dir = 'ltr';
-        document.getElementById('lang-en').classList.add('active');
-        document.getElementById('lang-ar').classList.remove('active');
-        updateLanguage('en');
-    };
-};
-
-// ---- تحديث اللغة ----
-function updateLanguage(lang) {
-    const elements = {
-        'from-label': { ar: 'من', en: 'From' },
-        'to-label': { ar: 'إلى', en: 'To' },
-        'car-label': { ar: 'نوع السيارة', en: 'Vehicle Type' },
-        'fuel-label': { ar: 'نوع الوقود', en: 'Fuel Type' },
-        'calculate-btn': { ar: 'احسب التكلفة الآن', en: 'Calculate Now' },
-        'admin-btn': { ar: 'لوحة التحكم للمشرف', en: 'Admin Dashboard' }
-    };
-    
-    // يمكن توسيع هذه الوظيفة حسب الحاجة
-    console.log('Language changed to:', lang);
-}
-
-// ---- حساب التكلفة ----
-async function calculate() {
-    const from = document.getElementById('from').value;
-    const to = document.getElementById('to').value;
-    const car = document.getElementById('carModel').value;
-    const fuel = document.getElementById('fuelType').value;
-    
-    if (!from || !to) {
-        alert('يرجى اختيار مدن المغادرة والوصول');
-        return;
-    }
-    
-    if (from === to) {
-        alert('يرجى اختيار مدينتين مختلفتين');
-        return;
-    }
-    
-    // حفظ الاختيارات
-    localStorage.setItem('lastFrom', from);
-    localStorage.setItem('lastTo', to);
-    
-    // إظهار مؤشر التحميل
-    const loading = document.getElementById('loading');
-    const resultDiv = document.getElementById('result');
-    loading.style.display = 'block';
-    resultDiv.innerHTML = '';
-    
-    try {
-        // الحصول على استهلاك السيارة وسعر الوقود
-        const carConsumption = carConsumptionMap[car] || 12;
-        const price = fuelPriceMap[fuel] || 2.18;
-        
-        // حساب المسافة باستخدام Google Maps
-        const distance = await getDistance(from, to);
-        
-        if (distance) {
-            // حساب التكلفة
-            const km = distance;
-            const liters = km / carConsumption;
-            const cost = liters * price;
+        <div class="form-container">
+            <div class="form-group">
+                <label class="form-label">من</label>
+                <div class="select-wrapper">
+                    <select id="from">
+                        <option value="">اختر المدينة</option>
+                    </select>
+                </div>
+            </div>
             
-            // عرض النتيجة
-            resultDiv.innerHTML = `
-                <div style="text-align: center; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 10px;">
-                    <div style="font-size: 22px; color: #0d6efd; margin-bottom: 10px;">نتيجة الحساب</div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: right;">
-                        <div>المسافة:</div><div><strong>${km.toFixed(1)} كم</strong></div>
-                        <div>الوقود المطلوب:</div><div><strong>${liters.toFixed(1)} لتر</strong></div>
-                        <div>التكلفة الإجمالية:</div><div><strong>${cost.toFixed(2)} ريال</strong></div>
-                        <div>متوسط الاستهلاك:</div><div><strong>${carConsumption} كم/لتر</strong></div>
-                        <div>نوع الوقود:</div><div><strong>${getFuelName(fuel)}</strong></div>
+            <div class="form-group">
+                <label class="form-label">إلى</label>
+                <div class="select-wrapper">
+                    <select id="to">
+                        <option value="">اختر المدينة</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col">
+                    <label class="form-label">نوع السيارة</label>
+                    <div class="select-wrapper">
+                        <select id="carModel">
+                            <option value="peugeot301">بيجو 301 (سيدان)</option>
+                            <option value="sedan">سيدان عادية</option>
+                            <option value="kiaSportage">كيا سبورتاج (SUV)</option>
+                            <option value="suv">SUV أخرى</option>
+                            <option value="gmcSierra">GMC سييرا (شاحنة)</option>
+                            <option value="pegas">بيجاس (مبردة)</option>
+                            <option value="dieselTruck">شاحنة ديزل</option>
+                        </select>
                     </div>
                 </div>
-            `;
+                
+                <div class="col">
+                    <label class="form-label">نوع الوقود</label>
+                    <div class="select-wrapper">
+                        <select id="fuelType">
+                            <option value="91">بنزين 91</option>
+                            <option value="95">بنزين 95</option>
+                            <option value="diesel">ديزل</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             
-            // حفظ في قاعدة البيانات
-            saveToDatabase(from, to, km, liters, cost, car, fuel);
-        } else {
-            resultDiv.innerHTML = '<div style="color: #ff6b6b;">⚠️ لم نتمكن من حساب المسافة. يرجى التحقق من أسماء المدن.</div>';
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        resultDiv.innerHTML = '<div style="color: #ff6b6b;">⚠️ حدث خطأ أثناء الحساب. يرجى المحاولة مرة أخرى.</div>';
-    } finally {
-        loading.style.display = 'none';
-    }
-}
-
-// ---- الحصول على المسافة ----
-function getDistance(from, to) {
-    return new Promise((resolve, reject) => {
-        const service = new google.maps.DirectionsService();
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>جاري حساب المسافة والتكلفة...</p>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculate()">احسب التكلفة الآن</button>
+            
+            <div class="result-container" id="result">
+                <div class="result-title">نتيجة الحساب</div>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="result-label">المسافة</div>
+                        <div class="result-value important-value" id="distance">-- كم</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">الوقود المطلوب</div>
+                        <div class="result-value important-value" id="fuelNeeded">-- لتر</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">التكلفة الإجمالية</div>
+                        <div class="result-value cost-value" id="totalCost">-- ريال</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">متوسط الاستهلاك</div>
+                        <div class="result-value" id="consumption">-- كم/لتر</div>
+                    </div>
+                </div>
+            </div>
+        </div>
         
-        service.route({
-            origin: from + ', السعودية',
-            destination: to + ', السعودية',
-            travelMode: google.maps.TravelMode.DRIVING,
-            unitSystem: google.maps.UnitSystem.METRIC
-        }, (response, status) => {
-            if (status === 'OK' && response.routes[0].legs[0]) {
-                const distance = response.routes[0].legs[0].distance.value / 1000; // تحويل إلى كم
-                resolve(distance);
-            } else {
-                // في حالة الفشل، استخدام تقدير تقريبي
-                console.warn('Google Maps failed, using fallback calculation');
-                resolve(estimateDistance(from, to));
-            }
+        <a href="admin.html" class="admin-btn">لوحة التحكم للمشرف</a>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js"></script>
+    
+    <!-- Google Maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwQ-uZOQQSh7JTxI5MojlwXgdva1Vc738&libraries=places&language=ar&region=SA"></script>
+
+    <script>
+    // ---- بيانات المدن السعودية ----
+    const saudiCities = [
+        // منطقة الرياض
+        "الرياض", "الخرج", "الدوادمي", "المزاحمية", "الدرعية", "شقراء", "القويعية",
+        "الزلفي", "المجمعة", "وادي الدواسر", "الغاط", "حوطة بني تميم", "الأفلاج",
+        "السليل", "رماح", "ثادق", "حريملاء",
+        
+        // منطقة مكة المكرمة
+        "مكة المكرمة", "جدة", "الطائف", "الليث", "القنفذة", "الكامل", "الجموم",
+        "بحرة", "تربة", "الخرمة", "رنية",
+        
+        // منطقة المدينة المنورة
+        "المدينة المنورة", "ينبع", "العلا", "بدر", "الحناكية", "المهد",
+        
+        // منطقة القصيم
+        "بريدة", "عنيزة", "الرس", "البكيرية", "المذنب", "البدائع", "رياض الخبراء",
+        "النبهانية", "عيون الجواء", "الأسياح", "الشماسية",
+        
+        // المنطقة الشرقية
+        "الدمام", "الخبر", "الظهران", "الأحساء", "القطيف", "الجبيل", "الخفجي",
+        "حفر الباطن", "قرية العليا", "النعيرية", "بقيق",
+        
+        // منطقة عسير
+        "أبها", "خميس مشيط", "ظهران الجنوب", "بيشة", "محايل عسير", "رجال ألمع",
+        "سراة عبيدة", "المجاردة", "النماص", "تنومة",
+        
+        // منطقة تبوك
+        "تبوك", "ضباء", "الوجه", "أملج", "تيماء", "حقل",
+        
+        // منطقة حائل
+        "حائل", "بقعاء", "الشنان", "الغزالة",
+        
+        // منطقة الجوف
+        "سكاكا", "القريات", "دومة الجندل",
+        
+        // منطقة الحدود الشمالية
+        "عرعر", "رفحاء", "طريف", "العويقيلة",
+        
+        // منطقة جازان
+        "جازان", "صبيا", "صامطة", "أبو عريش", "العارضة", "الدرب", "بيش", "فرسان",
+        
+        // منطقة نجران
+        "نجران", "شرورة", "حبونا",
+        
+        // منطقة الباحة
+        "الباحة", "المخواة", "المندق", "القرى", "العقيق"
+    ];
+
+    // ---- تهيئة الصفحة ----
+    document.addEventListener('DOMContentLoaded', function() {
+        // تعبئة قوائم المدن
+        const fromSelect = document.getElementById('from');
+        const toSelect = document.getElementById('to');
+        
+        // فرز المدن أبجدياً
+        const sortedCities = [...saudiCities].sort();
+        
+        sortedCities.forEach(city => {
+            // قائمة "من"
+            const option1 = document.createElement('option');
+            option1.value = city;
+            option1.textContent = city;
+            fromSelect.appendChild(option1);
+            
+            // قائمة "إلى"
+            const option2 = document.createElement('option');
+            option2.value = city;
+            option2.textContent = city;
+            toSelect.appendChild(option2);
         });
+        
+        // تعيين قيم افتراضية للاختبار
+        fromSelect.value = "الرياض";
+        toSelect.value = "جدة";
     });
-}
 
-// ---- تقدير المسافة (بديل) ----
-function estimateDistance(from, to) {
-    // هذا تقدير مبسط - في التطبيق الحقيقي يمكن استخدام قاعدة بيانات المسافات
-    const cities = {
-        'الرياض': { lat: 24.7136, lng: 46.6753 },
-        'جدة': { lat: 21.4858, lng: 39.1925 },
-        'الدمام': { lat: 26.4207, lng: 50.0888 },
-        'مكة المكرمة': { lat: 21.3891, lng: 39.8579 },
-        'المدينة المنورة': { lat: 24.5247, lng: 39.5692 }
+    // ---- استهلاك السيارات ----
+    const carConsumption = {
+        "peugeot301": 14,
+        "sedan": 12,
+        "kiaSportage": 10,
+        "suv": 9,
+        "gmcSierra": 8,
+        "pegas": 12,
+        "dieselTruck": 10
     };
-    
-    if (cities[from] && cities[to]) {
-        // حساب المسافة باستخدام صيغة هافرساين
-        const R = 6371; // نصف قطر الأرض بالكيلومتر
-        const dLat = (cities[to].lat - cities[from].lat) * Math.PI / 180;
-        const dLon = (cities[to].lng - cities[from].lng) * Math.PI / 180;
-        const a = 
-            Math.sin(dLat/2) * Math.sin(dLat/2) +
-            Math.cos(cities[from].lat * Math.PI / 180) * Math.cos(cities[to].lat * Math.PI / 180) * 
-            Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        const distance = R * c;
+
+    // ---- أسعار الوقود ----
+    const fuelPrices = {
+        "91": 2.18,
+        "95": 2.33,
+        "diesel": 1.66
+    };
+
+    // ---- حساب التكلفة ----
+    async function calculate() {
+        const from = document.getElementById('from').value;
+        const to = document.getElementById('to').value;
+        const carModel = document.getElementById('carModel').value;
+        const fuelType = document.getElementById('fuelType').value;
         
-        // إضافة 10% للتقدير الآمن
-        return distance * 1.1;
+        // التحقق من المدخلات
+        if (!from || !to) {
+            alert("يرجى اختيار المدن");
+            return;
+        }
+        
+        if (from === to) {
+            alert("يرجى اختيار مدينتين مختلفتين");
+            return;
+        }
+        
+        // إظهار مؤشر التحميل
+        const loading = document.getElementById('loading');
+        const resultContainer = document.getElementById('result');
+        loading.style.display = 'block';
+        resultContainer.style.display = 'none';
+        
+        try {
+            // الحصول على المسافة
+            const distance = await getDistance(from, to);
+            
+            if (distance > 0) {
+                // الحسابات
+                const consumptionRate = carConsumption[carModel] || 12;
+                const fuelPrice = fuelPrices[fuelType] || 2.18;
+                const fuelNeeded = distance / consumptionRate;
+                const totalCost = fuelNeeded * fuelPrice;
+                
+                // عرض النتائج
+                document.getElementById('distance').textContent = distance.toFixed(1) + " كم";
+                document.getElementById('fuelNeeded').textContent = fuelNeeded.toFixed(1) + " لتر";
+                document.getElementById('totalCost').textContent = totalCost.toFixed(2) + " ريال";
+                document.getElementById('consumption').textContent = consumptionRate + " كم/لتر";
+                
+                // إظهار النتائج
+                resultContainer.style.display = 'block';
+                
+                // حفظ في قاعدة البيانات
+                saveToDatabase(from, to, distance, fuelNeeded, totalCost, carModel, fuelType);
+            } else {
+                alert("تعذر حساب المسافة. يرجى المحاولة مرة أخرى.");
+            }
+        } catch (error) {
+            console.error("خطأ:", error);
+            alert("حدث خطأ أثناء الحساب. يرجى المحاولة مرة أخرى.");
+        } finally {
+            // إخفاء مؤشر التحميل
+            loading.style.display = 'none';
+        }
+    }
+
+    // ---- حساب المسافة ----
+    function getDistance(origin, destination) {
+        return new Promise((resolve, reject) => {
+            const service = new google.maps.DirectionsService();
+            
+            service.route({
+                origin: origin + ', السعودية',
+                destination: destination + ', السعودية',
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (result, status) => {
+                if (status === 'OK') {
+                    const distanceInMeters = result.routes[0].legs[0].distance.value;
+                    const distanceInKm = distanceInMeters / 1000;
+                    resolve(distanceInKm);
+                } else {
+                    // إذا فشل Google Maps، استخدم تقدير تقريبي
+                    console.warn("Google Maps فشل، استخدام تقدير تقريبي");
+                    resolve(estimateDistance(origin, destination));
+                }
+            });
+        });
+    }
+
+    // ---- تقدير المسافة (بديل) ----
+    function estimateDistance(from, to) {
+        // إحداثيات المدن الرئيسية
+        const cityCoordinates = {
+            'الرياض': { lat: 24.7136, lng: 46.6753 },
+            'جدة': { lat: 21.4858, lng: 39.1925 },
+            'الدمام': { lat: 26.4207, lng: 50.0888 },
+            'مكة المكرمة': { lat: 21.3891, lng: 39.8579 },
+            'المدينة المنورة': { lat: 24.5247, lng: 39.5692 },
+            'بريدة': { lat: 26.3364, lng: 43.9631 },
+            'تبوك': { lat: 28.3998, lng: 36.5781 },
+            'أبها': { lat: 18.2164, lng: 42.5053 }
+        };
+        
+        // البحث عن الإحداثيات
+        const fromCoords = cityCoordinates[from];
+        const toCoords = cityCoordinates[to];
+        
+        if (fromCoords && toCoords) {
+            // حساب المسافة باستخدام صيغة Haversine
+            const R = 6371; // نصف قطر الأرض بالكيلومترات
+            const dLat = toRad(toCoords.lat - fromCoords.lat);
+            const dLon = toRad(toCoords.lng - fromCoords.lng);
+            
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(toRad(fromCoords.lat)) * Math.cos(toRad(toCoords.lat)) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const distance = R * c;
+            
+            return distance;
+        }
+        
+        // تقدير افتراضي إذا لم تكن المدينة في القائمة
+        return 450;
     }
     
-    // تقدير افتراضي
-    return 300;
-}
+    function toRad(degrees) {
+        return degrees * Math.PI / 180;
+    }
 
-// ---- الحصول على اسم الوقود ----
-function getFuelName(fuelCode) {
-    const names = {
-        '91': 'بنزين 91',
-        '95': 'بنزين 95',
-        'diesel': 'ديزل'
-    };
-    return names[fuelCode] || fuelCode;
-}
-
-// ---- حفظ في قاعدة البيانات ----
-function saveToDatabase(from, to, km, liters, cost, car, fuel) {
-    const requestData = {
-        from: from,
-        to: to,
-        km: km.toFixed(1),
-        liters: liters.toFixed(2),
-        cost: cost.toFixed(2),
-        car: car,
-        fuel: fuel,
-        timestamp: new Date().toISOString(),
-        date: new Date().toLocaleString('ar-SA')
-    };
-    
-    // حفظ في Firebase
-    db.ref('fuel_requests').push(requestData)
-        .then(() => {
-            console.log('تم حفظ البيانات في قاعدة البيانات');
-        })
-        .catch(error => {
-            console.error('خطأ في حفظ البيانات:', error);
-        });
-}
-</script>
+    // ---- حفظ في قاعدة البيانات ----
+    function saveToDatabase(from, to, distance, fuelNeeded, totalCost, carModel, fuelType) {
+        try {
+            // تهيئة Firebase
+            const firebaseConfig = {
+                apiKey: "AIzaSyBkOM7eSnUJ0B_3Mx4wVyh-lTvFEAhxWas",
+                authDomain: "tama-6219c.firebaseapp.com",
+                databaseURL: "https://tama-6219c-default-rtdb.firebaseio.com",
+                projectId: "tama-6219c",
+                storageBucket: "tama-6219c.appspot.com",
+                messagingSenderId: "285162278384",
+                appId: "1:285162278384:web:8264d5439564660b616135"
+            };
+            
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            
+            const db = firebase.database();
+            
+            const requestData = {
+                from: from,
+                to: to,
+                distance: distance.toFixed(1),
+                fuelNeeded: fuelNeeded.toFixed(1),
+                totalCost: totalCost.toFixed(2),
+                carModel: carModel,
+                fuelType: fuelType,
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleString('ar-SA')
+            };
+            
+            db.ref('fuel_calculations').push(requestData)
+                .then(() => {
+                    console.log('تم حفظ الحساب في قاعدة البيانات');
+                })
+                .catch(error => {
+                    console.error('خطأ في حفظ البيانات:', error);
+                });
+        } catch (error) {
+            console.error('خطأ في الاتصال بقاعدة البيانات:', error);
+        }
+    }
+    </script>
 </body>
 </html>
