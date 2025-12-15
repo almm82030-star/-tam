@@ -3,968 +3,776 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حساب تكلفة الوقود</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <title>نظام تكلفة البترول - قيد التحديث</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Noto Sans Arabic', sans-serif;
         }
         
         body {
-            font-family: 'Tajawal', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0a1929 0%, #0d1b2a 100%);
             color: #fff;
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
         
         .container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 20px;
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
         }
         
         .header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        
-        .header h1 {
-            color: #fff;
-            font-size: 32px;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-        
-        .header p {
-            color: #a0a0c0;
-            font-size: 16px;
-        }
-        
-        .form-container {
-            background: #23234d;
-            border-radius: 25px;
-            padding: 35px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-            border: 1px solid #2d2d66;
-        }
-        
-        .form-group {
-            margin-bottom: 30px;
-            position: relative;
-        }
-        
-        .form-label {
-            display: block;
-            color: #a0a0c0;
-            margin-bottom: 12px;
-            font-size: 16px;
-            font-weight: 500;
-            padding-right: 10px;
-        }
-        
-        .select-wrapper {
-            position: relative;
+            margin-bottom: 50px;
             width: 100%;
         }
         
-        .select-wrapper::after {
-            content: "▼";
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #a0a0c0;
-            font-size: 14px;
-            pointer-events: none;
-        }
-        
-        select {
-            width: 100%;
-            padding: 18px 20px;
-            padding-left: 45px;
-            background: #1a1a3d;
-            border: 2px solid #2d2d66;
-            border-radius: 15px;
-            color: #fff;
-            font-size: 18px;
-            font-family: 'Tajawal', sans-serif;
-            font-weight: 500;
-            appearance: none;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        select:focus {
-            outline: none;
-            border-color: #4d79ff;
-            box-shadow: 0 0 0 3px rgba(77, 121, 255, 0.2);
-        }
-        
-        select:hover {
-            border-color: #3a3a7d;
-        }
-        
-        option {
-            background: #1a1a3d;
-            color: #fff;
-            padding: 15px;
-            font-size: 16px;
-        }
-        
-        .row {
+        .logo-container {
             display: flex;
-            gap: 20px;
+            justify-content: center;
             margin-bottom: 30px;
-        }
-        
-        .col {
-            flex: 1;
-        }
-        
-        .separator {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #2d2d66, transparent);
-            margin: 35px 0;
-        }
-        
-        .calculate-btn {
-            width: 100%;
-            padding: 22px;
-            background: linear-gradient(135deg, #4d79ff 0%, #3366ff 100%);
-            color: white;
-            border: none;
-            border-radius: 15px;
-            font-size: 20px;
-            font-weight: 700;
-            font-family: 'Tajawal', sans-serif;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            box-shadow: 0 10px 25px rgba(77, 121, 255, 0.3);
-        }
-        
-        .calculate-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(77, 121, 255, 0.4);
-            background: linear-gradient(135deg, #5c87ff 0%, #4075ff 100%);
-        }
-        
-        .calculate-btn:active {
-            transform: translateY(-1px);
-        }
-        
-        .result-container {
-            background: rgba(26, 26, 61, 0.8);
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 30px;
-            border: 1px solid #2d2d66;
-            display: none;
-        }
-        
-        .result-title {
-            color: #4d79ff;
-            font-size: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 700;
-        }
-        
-        .result-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .result-item {
-            background: #1a1a3d;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #2d2d66;
-        }
-        
-        .result-label {
-            color: #a0a0c0;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        
-        .result-value {
-            color: #fff;
-            font-size: 18px;
-            font-weight: 700;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(77, 121, 255, 0.2);
-            border-top: 4px solid #4d79ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
         
         .logo {
-            width: 120px;
-            margin-bottom: 20px;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+            width: 220px;
+            height: 220px;
+            border-radius: 25px;
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.2) 0%, rgba(37, 99, 235, 0.1) 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border: 3px solid rgba(59, 130, 246, 0.4);
+            position: relative;
+            overflow: hidden;
+            padding: 15px;
+            backdrop-filter: blur(10px);
         }
         
-        /* زر لوحة التحكم */
-        .admin-btn {
-            display: block;
-            width: 200px;
-            margin: 30px auto 0;
-            padding: 12px 25px;
-            background: rgba(77, 121, 255, 0.1);
-            color: #4d79ff;
-            border: 1px solid #4d79ff;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            text-align: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
+        .logo img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 15px;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.5));
         }
         
-        .admin-btn:hover {
-            background: rgba(77, 121, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        /* تحسينات للجوال */
-        @media (max-width: 600px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .form-container {
-                padding: 25px;
-            }
-            
-            .row {
-                flex-direction: column;
-                gap: 30px;
-            }
-            
-            .header h1 {
-                font-size: 28px;
-            }
-            
-            select {
-                font-size: 16px;
-                padding: 16px 20px;
-                padding-left: 45px;
-            }
-            
-            .calculate-btn {
-                padding: 20px;
-                font-size: 18px;
-            }
-        }
-        
-        /* ألوان للقيم المهمة */
-        .important-value {
-            color: #4dff4d !important;
-        }
-        
-        .cost-value {
-            color: #ffcc00 !important;
-            font-size: 24px !important;
-        }
-        
-        /* حقل البحث */
-        .city-search {
-            width: 100%;
-            padding: 12px 20px;
-            margin-bottom: 10px;
-            background: #1a1a3d;
-            border: 2px solid #2d2d66;
-            border-radius: 10px;
-            color: #fff;
-            font-family: 'Tajawal', sans-serif;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-        
-        .city-search:focus {
-            outline: none;
-            border-color: #4d79ff;
-            box-shadow: 0 0 0 3px rgba(77, 121, 255, 0.2);
-        }
-        
-        .city-search::placeholder {
-            color: #a0a0c0;
-        }
-        
-        /* نتائج البحث */
-        .search-results {
+        .logo-glow {
             position: absolute;
-            top: 100%;
+            width: 100%;
+            height: 100%;
+            border-radius: 25px;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+            animation: glow 4s ease-in-out infinite alternate;
+        }
+        
+        .title {
+            font-size: 3.2rem;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, #60a5fa, #3b82f6, #2563eb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 5px 20px rgba(37, 99, 235, 0.3);
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            color: #cbd5e1;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 50px;
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 50px;
+            border: 1px solid rgba(100, 116, 139, 0.2);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .status-container {
+            margin-bottom: 40px;
+        }
+        
+        .status-title {
+            font-size: 2.4rem;
+            margin-bottom: 25px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            font-weight: 600;
+        }
+        
+        .status-message {
+            font-size: 1.8rem;
+            line-height: 1.8;
+            color: #f8fafc;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(34, 197, 94, 0.1) 100%);
+            border-radius: 18px;
+            border-right: 5px solid #10b981;
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.1);
+            font-weight: 500;
+        }
+        
+        .status-desc {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #e2e8f0;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        
+        .progress-container {
+            margin: 50px 0;
+        }
+        
+        .progress-title {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            height: 28px;
+            background-color: rgba(30, 41, 59, 0.8);
+            border-radius: 14px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 20px;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .progress-fill {
+            height: 100%;
+            width: 78%;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa, #93c5fd);
+            border-radius: 14px;
+            position: relative;
+            overflow: hidden;
+            transition: width 2s ease-in-out;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+        
+        .progress-fill::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background-image: linear-gradient(
+                -45deg, 
+                rgba(255, 255, 255, 0.25) 25%, 
+                transparent 25%, 
+                transparent 50%, 
+                rgba(255, 255, 255, 0.25) 50%, 
+                rgba(255, 255, 255, 0.25) 75%, 
+                transparent 75%, 
+                transparent
+            );
+            background-size: 60px 60px;
+            animation: move 3s linear infinite;
+        }
+        
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            color: #94a3b8;
+            padding: 0 10px;
+            font-weight: 500;
+        }
+        
+        .countdown-container {
+            margin-top: 50px;
+            padding: 35px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.7) 100%);
+            border-radius: 25px;
+            border: 1px solid rgba(100, 116, 139, 0.2);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        .countdown-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            font-weight: 600;
+        }
+        
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .countdown-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .countdown-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #f8fafc;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+            width: 130px;
+            height: 130px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .countdown-value::before {
+            content: "";
+            position: absolute;
+            top: 0;
             left: 0;
             right: 0;
-            background: #1a1a3d;
-            border: 2px solid #2d2d66;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
         }
         
-        .search-result-item {
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #2d2d66;
+        .countdown-label {
+            font-size: 1.3rem;
+            color: #cbd5e1;
+            font-weight: 500;
+            letter-spacing: 1px;
         }
         
-        .search-result-item:hover {
-            background: #23234d;
+        .features-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            margin-top: 60px;
+            gap: 25px;
         }
         
-        .search-result-item:last-child {
-            border-bottom: none;
+        .feature {
+            width: 30%;
+            min-width: 240px;
+            margin-bottom: 25px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.7) 100%);
+            border-radius: 22px;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(100, 116, 139, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .feature:hover {
+            transform: translateY(-12px);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        .feature:hover::before {
+            opacity: 1;
+        }
+        
+        .feature-icon {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #3b82f6, #60a5fa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 18px;
+            color: #f1f5f9;
+            font-weight: 600;
+        }
+        
+        .feature-desc {
+            font-size: 1.1rem;
+            color: #cbd5e1;
+            line-height: 1.7;
+            opacity: 0.9;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            padding-top: 30px;
+            border-top: 1px solid rgba(100, 116, 139, 0.2);
+            width: 100%;
+            max-width: 1000px;
+            opacity: 0.8;
+        }
+        
+        .copyright {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+        
+        .company-name {
+            color: #60a5fa;
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        .pulse-strong {
+            animation: pulse-strong 1.8s infinite;
+        }
+        
+        .fade-in {
+            animation: fadeIn 1.5s ease-out;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.02); }
+            100% { opacity: 0.8; transform: scale(1); }
+        }
+        
+        @keyframes pulse-strong {
+            0% { 
+                opacity: 0.8; 
+                transform: scale(1); 
+                box-shadow: 0 10px 25px rgba(16, 185, 129, 0.1);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.03); 
+                box-shadow: 0 15px 30px rgba(16, 185, 129, 0.2);
+            }
+            100% { 
+                opacity: 0.8; 
+                transform: scale(1); 
+                box-shadow: 0 10px 25px rgba(16, 185, 129, 0.1);
+            }
+        }
+        
+        @keyframes move {
+            0% { background-position: 0 0; }
+            100% { background-position: 60px 60px; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes glow {
+            0% { opacity: 0.5; }
+            100% { opacity: 0.8; }
+        }
+        
+        @media (max-width: 1100px) {
+            .title {
+                font-size: 2.8rem;
+            }
+            
+            .status-message {
+                font-size: 1.6rem;
+            }
+            
+            .countdown-value {
+                width: 110px;
+                height: 110px;
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 900px) {
+            .title {
+                font-size: 2.4rem;
+            }
+            
+            .main-content {
+                padding: 40px 30px;
+            }
+            
+            .status-title {
+                font-size: 2rem;
+            }
+            
+            .status-message {
+                font-size: 1.5rem;
+            }
+            
+            .feature {
+                width: 45%;
+            }
+            
+            .countdown-value {
+                width: 100px;
+                height: 100px;
+                font-size: 2.8rem;
+            }
+        }
+        
+        @media (max-width: 700px) {
+            .title {
+                font-size: 2.2rem;
+            }
+            
+            .logo {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .main-content {
+                padding: 35px 25px;
+            }
+            
+            .feature {
+                width: 100%;
+            }
+            
+            .countdown {
+                gap: 15px;
+            }
+            
+            .countdown-value {
+                width: 85px;
+                height: 85px;
+                font-size: 2.4rem;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .title {
+                font-size: 1.9rem;
+            }
+            
+            .logo {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .status-title {
+                font-size: 1.7rem;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .countdown {
+                gap: 10px;
+            }
+            
+            .countdown-value {
+                width: 70px;
+                height: 70px;
+                font-size: 2rem;
+            }
+            
+            .countdown-label {
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>حساب تكلفة الوقود</h1>
-            <p>احسب تكلفة رحلتك بسهولة ودقة</p>
+        <div class="header fade-in">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="https://i.ibb.co/yFCW2v98/Untitled.webp" alt="شعار نظام تكلفة البترول">
+                    <div class="logo-glow"></div>
+                </div>
+            </div>
+            <h1 class="title">نظام تكلفة البترول</h1>
+            <p class="subtitle">منصة متطورة لحساب وتتبع تكاليف البترول والمنتجات النفطية بدقة عالية وكفاءة ممتازة</p>
         </div>
         
-        <div class="form-container">
-            <div class="form-group">
-                <label class="form-label">من</label>
-                <input type="text" class="city-search" id="fromSearch" placeholder="🔍 ابحث عن المدينة...">
-                <div class="select-wrapper">
-                    <select id="from">
-                        <option value="">اختر المدينة</option>
-                    </select>
-                </div>
-                <div class="search-results" id="fromResults"></div>
+        <div class="main-content fade-in">
+            <div class="status-container">
+                <h2 class="status-title"><i class="fas fa-cogs"></i> حالة النظام الحالية</h2>
+                <p class="status-message pulse-strong">النظام قيد التحديث والتطوير</p>
+                <p class="status-desc">نعمل حالياً على تطوير وتحسين نظام تكلفة البترول لتقديم مميزات جديدة وواجهة مستخدم محسنة.</p>
+                <p class="status-desc">سنعود إليكم بنسخة محسنة وأكثر كفاءة قريباً. نعتذر عن أي إزعاج مؤقت.</p>
             </div>
             
-            <div class="form-group">
-                <label class="form-label">إلى</label>
-                <input type="text" class="city-search" id="toSearch" placeholder="🔍 ابحث عن المدينة...">
-                <div class="select-wrapper">
-                    <select id="to">
-                        <option value="">اختر المدينة</option>
-                    </select>
+            <div class="progress-container">
+                <h3 class="progress-title"><i class="fas fa-chart-line"></i> تقدم عملية التطوير</h3>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
                 </div>
-                <div class="search-results" id="toResults"></div>
+                <div class="progress-text">
+                    <span>بداية التطوير</span>
+                    <span id="progressPercentage">78%</span>
+                    <span>الإطلاق المتوقع</span>
+                </div>
             </div>
             
-            <div class="row">
-                <div class="col">
-                    <label class="form-label">نوع السيارة</label>
-                    <div class="select-wrapper">
-                        <select id="carModel">
-                            <!-- السيارات القديمة -->
-                            <option value="peugeot301">بيجو 301 (سيدان)</option>
-                            <option value="sedan">سيارة سيدان عادية</option>
-                            <option value="kiaSportage">كيا سبورتاج (SUV)</option>
-                            <option value="suv">SUV أخرى</option>
-                            <option value="gmcSierra">GMC سييرا (شاحنة)</option>
-                            <option value="pegas">بيجاس (مبردة)</option>
-                            <option value="dieselTruck">شاحنة ديزل عامة</option>
-                            
-                            <!-- السيارات الجديدة المضافة -->
-                            <option value="peugeot">بيجو (عام)</option>
-                            <option value="kiaPegas">كيا بيغاس</option>
-                            <option value="toyotaHiace">تويوتا هايس</option>
-                            <option value="suzukiDzire">سوزوكي دزير</option>
-                            <option value="kizashi">كيزاشي</option>
-                            <option value="nissan">نيسان (عام)</option>
-                            <option value="hyundaiAccent">هيونداي اكسنت</option>
-                            <option value="gmcPickup">جي ام سي بيك اب</option>
-                            <option value="gmcTruck">جي ام سي شاحنة</option>
-                            <option value="renaultMaster">رينو ماستر</option>
-                            <option value="toyotaVan">تويوتا فان</option>
-                        </select>
+            <div class="countdown-container">
+                <h3 class="countdown-title"><i class="far fa-clock"></i> الوقت المتبقي للإطلاق</h3>
+                <div class="countdown">
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="days">14</div>
+                        <div class="countdown-label">أيام</div>
                     </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="hours">08</div>
+                        <div class="countdown-label">ساعات</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="minutes">32</div>
+                        <div class="countdown-label">دقائق</div>
+                    </div>
+                    <div class="countdown-item">
+                        <div class="countdown-value" id="seconds">15</div>
+                        <div class="countdown-label">ثواني</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="features-container">
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-pie"></i>
+                    </div>
+                    <h4 class="feature-title">تحليلات متقدمة</h4>
+                    <p class="feature-desc">تقارير وتحليلات مفصلة لتكاليف البترول مع إمكانيات تخصيص متقدمة وتصور بيانات تفاعلي.</p>
                 </div>
                 
-                <div class="col">
-                    <label class="form-label">نوع الوقود</label>
-                    <div class="select-wrapper">
-                        <select id="fuelType">
-                            <option value="91">بنزين 91</option>
-                            <option value="95">بنزين 95</option>
-                            <option value="diesel">ديزل</option>
-                        </select>
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-tachometer-alt"></i>
                     </div>
+                    <h4 class="feature-title">أداء فائق السرعة</h4>
+                    <p class="feature-desc">تحسين أداء النظام لمعالجة البيانات الكبيرة بسرعة فائقة واستجابة سريعة.</p>
                 </div>
-            </div>
-            
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p>جاري حساب المسافة والتكلفة...</p>
-            </div>
-            
-            <button class="calculate-btn" onclick="calculate()">احسب التكلفة الآن</button>
-            
-            <div class="result-container" id="result">
-                <div class="result-title">نتيجة الحساب</div>
-                <div class="result-grid">
-                    <div class="result-item">
-                        <div class="result-label">المسافة</div>
-                        <div class="result-value important-value" id="distance">-- كم</div>
+                
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fas fa-lock"></i>
                     </div>
-                    <div class="result-item">
-                        <div class="result-label">الوقود المطلوب</div>
-                        <div class="result-value important-value" id="fuelNeeded">-- لتر</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">التكلفة الإجمالية</div>
-                        <div class="result-value cost-value" id="totalCost">-- ريال</div>
-                    </div>
-                    <div class="result-item">
-                        <div class="result-label">وقت الرحلة</div>
-                        <div class="result-value" id="duration">-- ساعة</div>
-                    </div>
+                    <h4 class="feature-title">أمان محسن</h4>
+                    <p class="feature-desc">طبقات أمان متقدمة وتشفير بيانات لحماية المعلومات الحساسة والسرية.</p>
                 </div>
             </div>
         </div>
         
-        <a href="admin.html" class="admin-btn">لوحة التحكم للمشرف</a>
+        <div class="footer fade-in">
+            <p class="copyright">جميع الحقوق محفوظة © 2023 <span class="company-name">شركة الزهراني لوجستيك</span></p>
+        </div>
     </div>
 
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.1.0/firebase-database.js"></script>
-    
-    <!-- Google Maps -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwQ-uZOQQSh7JTxI5MojlwXgdva1Vc738&libraries=places&language=ar&region=SA"></script>
-
     <script>
-    // ---- بيانات المدن السعودية ----
-    const saudiCities = [
-        // منطقة الرياض
-        "الرياض", "الخرج", "الدوادمي", "المزاحمية", "الدرعية", "شقراء", "القويعية",
-        "الزلفي", "المجمعة", "وادي الدواسر", "الغاط", "حوطة بني تميم", "الأفلاج",
-        "السليل", "رماح", "ثادق", "حريملاء",
-        
-        // منطقة مكة المكرمة
-        "مكة المكرمة", "جدة", "الطائف", "الليث", "القنفذة", "الكامل", "الجموم",
-        "بحرة", "تربة", "الخرمة", "رنية",
-        
-        // منطقة المدينة المنورة
-        "المدينة المنورة", "ينبع", "العلا", "بدر", "الحناكية", "المهد",
-        
-        // منطقة القصيم
-        "بريدة", "عنيزة", "الرس", "البكيرية", "المذنب", "البدائع", "رياض الخبراء",
-        "النبهانية", "عيون الجواء", "الأسياح", "الشماسية",
-        
-        // المنطقة الشرقية
-        "الدمام", "الخبر", "الظهران", "الأحساء", "القطيف", "الجبيل", "الخفجي",
-        "حفر الباطن", "قرية العليا", "النعيرية", "بقيق",
-        
-        // منطقة عسير
-        "أبها", "خميس مشيط", "ظهران الجنوب", "بيشة", "محايل عسير", "رجال ألمع",
-        "سراة عبيدة", "المجاردة", "النماص", "تنومة",
-        
-        // منطقة تبوك
-        "تبوك", "ضباء", "الوجه", "أملج", "تيماء", "حقل",
-        
-        // منطقة حائل
-        "حائل", "بقعاء", "الشنان", "الغزالة",
-        
-        // منطقة الجوف
-        "سكاكا", "القريات", "دومة الجندل",
-        
-        // منطقة الحدود الشمالية
-        "عرعر", "رفحاء", "طريف", "العويقيلة",
-        
-        // منطقة جازان
-        "جازان", "صبيا", "صامطة", "أبو عريش", "العارضة", "الدرب", "بيش", "فرسان",
-        
-        // منطقة نجران
-        "نجران", "شرورة", "حبونا",
-        
-        // منطقة الباحة
-        "الباحة", "المخواة", "المندق", "القرى", "العقيق"
-    ];
-
-    // ---- تهيئة الصفحة ----
-    document.addEventListener('DOMContentLoaded', function() {
-        // تعبئة قوائم المدن
-        const fromSelect = document.getElementById('from');
-        const toSelect = document.getElementById('to');
-        
-        // فرز المدن أبجدياً
-        const sortedCities = [...saudiCities].sort();
-        
-        sortedCities.forEach(city => {
-            // قائمة "من"
-            const option1 = document.createElement('option');
-            option1.value = city;
-            option1.textContent = city;
-            fromSelect.appendChild(option1);
+        // تحديث شريط التقدم
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressFill = document.getElementById('progressFill');
+            const progressPercentage = document.getElementById('progressPercentage');
             
-            // قائمة "إلى"
-            const option2 = document.createElement('option');
-            option2.value = city;
-            option2.textContent = city;
-            toSelect.appendChild(option2);
-        });
-        
-        // تعيين قيم افتراضية للاختبار
-        fromSelect.value = "الرياض";
-        toSelect.value = "جدة";
-        
-        // تهيئة البحث
-        setupCitySearch();
-    });
-
-    // ---- استهلاك السيارات ----
-    const carConsumption = {
-        // السيارات القديمة
-        "peugeot301": 14,      // بيجو 301
-        "sedan": 12,           // سيدان عادية
-        "kiaSportage": 10,     // كيا سبورتاج
-        "suv": 9,              // SUV أخرى
-        "gmcSierra": 8,        // GMC سييرا
-        "pegas": 12,           // بيجاس
-        "dieselTruck": 10,     // شاحنة ديزل
-        
-        // السيارات الجديدة المضافة
-        "peugeot": 13,         // بيجو (عام)
-        "kiaPegas": 15,        // كيا بيغاس
-        "toyotaHiace": 9,      // تويوتا هايس (فان)
-        "suzukiDzire": 16,     // سوزوكي دزير (اقتصادية)
-        "kizashi": 12,         // كيزاشي (سيدان متوسطة)
-        "nissan": 11,          // نيسان (عام)
-        "hyundaiAccent": 15,   // هيونداي اكسنت (اقتصادية)
-        "gmcPickup": 7,        // جي ام سي بيك اب
-        "gmcTruck": 6,         // جي ام سي شاحنة
-        "renaultMaster": 8,    // رينو ماستر (فان تجاري)
-        "toyotaVan": 9         // تويوتا فان
-    };
-
-    // ---- أسعار الوقود ----
-    const fuelPrices = {
-        "91": 2.18,
-        "95": 2.33,
-        "diesel": 1.66
-    };
-
-    // ---- إعداد البحث في المدن ----
-    function setupCitySearch() {
-        const fromSearch = document.getElementById('fromSearch');
-        const toSearch = document.getElementById('toSearch');
-        const fromResults = document.getElementById('fromResults');
-        const toResults = document.getElementById('toResults');
-        const fromSelect = document.getElementById('from');
-        const toSelect = document.getElementById('to');
-
-        // وظيفة البحث للمدينة المبدأ
-        fromSearch.addEventListener('input', function() {
-            const searchText = this.value.trim().toLowerCase();
+            // محاكاة تقدم تدريجي
+            let progress = 0;
+            let targetProgress = 78;
             
-            if (searchText.length < 1) {
-                fromResults.style.display = 'none';
-                return;
-            }
-            
-            // البحث في المدن
-            const results = saudiCities.filter(city => 
-                city.toLowerCase().includes(searchText)
-            );
-            
-            displaySearchResults(results, fromResults, fromSelect, fromSearch);
-        });
-        
-        // وظيفة البحث للمدينة الوجهة
-        toSearch.addEventListener('input', function() {
-            const searchText = this.value.trim().toLowerCase();
-            
-            if (searchText.length < 1) {
-                toResults.style.display = 'none';
-                return;
-            }
-            
-            // البحث في المدن
-            const results = saudiCities.filter(city => 
-                city.toLowerCase().includes(searchText)
-            );
-            
-            displaySearchResults(results, toResults, toSelect, toSearch);
-        });
-        
-        // إخفاء نتائج البحث عند النقر خارجها
-        document.addEventListener('click', function(e) {
-            if (!fromSearch.contains(e.target) && !fromResults.contains(e.target)) {
-                fromResults.style.display = 'none';
-            }
-            if (!toSearch.contains(e.target) && !toResults.contains(e.target)) {
-                toResults.style.display = 'none';
-            }
-        });
-        
-        // تحديث حقل البحث عند اختيار مدينة من القائمة
-        fromSelect.addEventListener('change', function() {
-            fromSearch.value = this.value;
-            fromResults.style.display = 'none';
-        });
-        
-        toSelect.addEventListener('change', function() {
-            toSearch.value = this.value;
-            toResults.style.display = 'none';
-        });
-        
-        // إظهار نتائج البحث عند التركيز على حقل البحث
-        fromSearch.addEventListener('focus', function() {
-            if (this.value.trim().length > 0) {
-                const searchText = this.value.trim().toLowerCase();
-                const results = saudiCities.filter(city => 
-                    city.toLowerCase().includes(searchText)
-                );
-                displaySearchResults(results, fromResults, fromSelect, fromSearch);
-            }
-        });
-        
-        toSearch.addEventListener('focus', function() {
-            if (this.value.trim().length > 0) {
-                const searchText = this.value.trim().toLowerCase();
-                const results = saudiCities.filter(city => 
-                    city.toLowerCase().includes(searchText)
-                );
-                displaySearchResults(results, toResults, toSelect, toSearch);
-            }
-        });
-    }
-    
-    // ---- عرض نتائج البحث ----
-    function displaySearchResults(results, resultsContainer, selectElement, searchInput) {
-        resultsContainer.innerHTML = '';
-        
-        if (results.length === 0) {
-            const noResult = document.createElement('div');
-            noResult.className = 'search-result-item';
-            noResult.textContent = 'لا توجد نتائج';
-            resultsContainer.appendChild(noResult);
-        } else {
-            results.forEach(city => {
-                const resultItem = document.createElement('div');
-                resultItem.className = 'search-result-item';
-                resultItem.textContent = city;
-                
-                resultItem.addEventListener('click', function() {
-                    // تحديث القائمة المنسدلة
-                    selectElement.value = city;
-                    // تحديث حقل البحث
-                    searchInput.value = city;
-                    // إخفاء نتائج البحث
-                    resultsContainer.style.display = 'none';
-                });
-                
-                resultsContainer.appendChild(resultItem);
-            });
-        }
-        
-        resultsContainer.style.display = 'block';
-    }
-
-    // ---- حساب التكلفة ----
-    async function calculate() {
-        const fromSelect = document.getElementById('from');
-        const toSelect = document.getElementById('to');
-        const fromSearch = document.getElementById('fromSearch');
-        const toSearch = document.getElementById('toSearch');
-        const carModel = document.getElementById('carModel').value;
-        const fuelType = document.getElementById('fuelType').value;
-        
-        // الحصول على القيمة من حقل البحث أو القائمة المنسدلة
-        let from = fromSelect.value;
-        let to = toSelect.value;
-        
-        // إذا كانت القائمة المنسدلة فارغة، استخدم حقل البحث
-        if (!from && fromSearch.value) {
-            from = fromSearch.value;
-            // تحديث القائمة المنسدلة
-            fromSelect.value = from;
-        }
-        
-        if (!to && toSearch.value) {
-            to = toSearch.value;
-            // تحديث القائمة المنسدلة
-            toSelect.value = to;
-        }
-        
-        // التحقق من المدخلات
-        if (!from || !to) {
-            alert("يرجى اختيار المدن");
-            return;
-        }
-        
-        if (from === to) {
-            alert("يرجى اختيار مدينتين مختلفتين");
-            return;
-        }
-        
-        // التحقق من أن المدينة موجودة في القائمة
-        if (!saudiCities.includes(from)) {
-            alert(`المدينة "${from}" غير موجودة في القائمة. يرجى اختيار مدينة صحيحة.`);
-            return;
-        }
-        
-        if (!saudiCities.includes(to)) {
-            alert(`المدينة "${to}" غير موجودة في القائمة. يرجى اختيار مدينة صحيحة.`);
-            return;
-        }
-        
-        // إظهار مؤشر التحميل
-        const loading = document.getElementById('loading');
-        const resultContainer = document.getElementById('result');
-        loading.style.display = 'block';
-        resultContainer.style.display = 'none';
-        
-        try {
-            // الحصول على المسافة
-            const routeInfo = await getRouteInfo(from, to);
-            
-            if (routeInfo && routeInfo.distance) {
-                // تطبيق الزيادة: إضافة 30 كم لكل 1000 كم
-                const baseDistance = routeInfo.distance;
-                const adjustedDistance = applyDistanceAdjustment(baseDistance);
-                const duration = routeInfo.duration;
-                
-                // الحسابات
-                const consumptionRate = carConsumption[carModel] || 12;
-                const fuelPrice = fuelPrices[fuelType] || 2.18;
-                
-                const fuelNeeded = adjustedDistance / consumptionRate;
-                const totalCost = fuelNeeded * fuelPrice;
-                
-                // عرض النتائج
-                document.getElementById('distance').textContent = 
-                    adjustedDistance.toFixed(1) + " كم" + 
-                    (baseDistance !== adjustedDistance ? 
-                    ` <small style="color:#ff6b6b;font-size:14px;">(بعد التعديل)</small>` : "");
-                
-                document.getElementById('fuelNeeded').textContent = fuelNeeded.toFixed(1) + " لتر";
-                document.getElementById('totalCost').textContent = totalCost.toFixed(2) + " ريال";
-                document.getElementById('duration').textContent = duration;
-                
-                // إظهار النتائج
-                resultContainer.style.display = 'block';
-                
-                // حفظ في قاعدة البيانات مع المسافة المعدلة
-                saveToDatabase(from, to, baseDistance, adjustedDistance, fuelNeeded, totalCost, carModel, fuelType, duration);
-            } else {
-                alert("تعذر حساب المسافة. يرجى المحاولة مرة أخرى.");
-            }
-        } catch (error) {
-            console.error("خطأ:", error);
-            alert("حدث خطأ أثناء الحساب. يرجى المحاولة مرة أخرى.");
-        } finally {
-            // إخفاء مؤشر التحميل
-            loading.style.display = 'none';
-        }
-    }
-
-    // ---- تطبيق تعديل المسافة: إضافة 30 كم لكل 1000 كم ----
-    function applyDistanceAdjustment(baseDistance) {
-        // حساب عدد مضاعفات الـ 1000 كم
-        const multiplesOf1000 = Math.floor(baseDistance / 1000);
-        
-        // إضافة 30 كم لكل 1000 كم
-        const extraDistance = multiplesOf1000 * 30;
-        
-        // المسافة النهائية بعد التعديل
-        const adjustedDistance = baseDistance + extraDistance;
-        
-        console.log(`📏 تعديل المسافة: ${baseDistance.toFixed(1)} كم → ${adjustedDistance.toFixed(1)} كم (تم إضافة ${extraDistance} كم)`);
-        
-        return adjustedDistance;
-    }
-
-    // ---- الحصول على معلومات المسار ----
-    function getRouteInfo(origin, destination) {
-        return new Promise((resolve, reject) => {
-            const service = new google.maps.DirectionsService();
-            
-            service.route({
-                origin: origin + ', السعودية',
-                destination: destination + ', السعودية',
-                travelMode: google.maps.TravelMode.DRIVING,
-                unitSystem: google.maps.UnitSystem.METRIC
-            }, (result, status) => {
-                if (status === 'OK') {
-                    const distanceInMeters = result.routes[0].legs[0].distance.value;
-                    const distanceInKm = distanceInMeters / 1000;
-                    
-                    // حساب وقت الرحلة
-                    const durationInSeconds = result.routes[0].legs[0].duration.value;
-                    const durationHours = Math.floor(durationInSeconds / 3600);
-                    const durationMinutes = Math.floor((durationInSeconds % 3600) / 60);
-                    
-                    let durationText = '';
-                    if (durationHours > 0) {
-                        durationText = `${durationHours} ساعة`;
-                        if (durationMinutes > 0) {
-                            durationText += ` و ${durationMinutes} دقيقة`;
-                        }
-                    } else {
-                        durationText = `${durationMinutes} دقيقة`;
-                    }
-                    
-                    resolve({
-                        distance: distanceInKm,
-                        duration: durationText
-                    });
-                } else {
-                    // إذا فشل Google Maps، استخدم تقدير تقريبي
-                    console.warn("Google Maps فشل، استخدام تقدير تقريبي");
-                    const estimatedDistance = estimateDistance(origin, destination);
-                    const estimatedHours = Math.floor(estimatedDistance / 80);
-                    const estimatedMinutes = Math.floor((estimatedDistance % 80) / 80 * 60);
-                    
-                    let estimatedDuration = '';
-                    if (estimatedHours > 0) {
-                        estimatedDuration = `${estimatedHours} ساعة`;
-                        if (estimatedMinutes > 0) {
-                            estimatedDuration += ` و ${estimatedMinutes} دقيقة`;
-                        }
-                    } else {
-                        estimatedDuration = `${estimatedMinutes} دقيقة`;
-                    }
-                    
-                    resolve({
-                        distance: estimatedDistance,
-                        duration: estimatedDuration
-                    });
+            function updateProgress() {
+                if (progress < targetProgress) {
+                    progress += 0.9;
+                    progressFill.style.width = progress + '%';
+                    progressPercentage.textContent = Math.round(progress) + '%';
                 }
-            });
-        });
-    }
-
-    // ---- تقدير المسافة (بديل) ----
-    function estimateDistance(from, to) {
-        // إحداثيات المدن الرئيسية
-        const cityCoordinates = {
-            'الرياض': { lat: 24.7136, lng: 46.6753 },
-            'جدة': { lat: 21.4858, lng: 39.1925 },
-            'الدمام': { lat: 26.4207, lng: 50.0888 },
-            'مكة المكرمة': { lat: 21.3891, lng: 39.8579 },
-            'المدينة المنورة': { lat: 24.5247, lng: 39.5692 },
-            'بريدة': { lat: 26.3364, lng: 43.9631 },
-            'تبوك': { lat: 28.3998, lng: 36.5781 },
-            'أبها': { lat: 18.2164, lng: 42.5053 },
-            'الخرج': { lat: 24.1432, lng: 47.3053 },
-            'الطائف': { lat: 21.2703, lng: 40.4158 },
-            'حائل': { lat: 27.5114, lng: 41.7208 },
-            'سكاكا': { lat: 29.9697, lng: 40.2000 },
-            'عرعر': { lat: 30.9756, lng: 41.0381 },
-            'جازان': { lat: 16.8894, lng: 42.5606 },
-            'نجران': { lat: 17.4917, lng: 44.1272 },
-            'الباحة': { lat: 20.0129, lng: 41.4677 },
-            'عنيزة': { lat: 26.0919, lng: 43.9861 },
-            'الظهران': { lat: 26.2891, lng: 50.1140 },
-            'الخبر': { lat: 26.2172, lng: 50.1971 },
-            'حفر الباطن': { lat: 28.4342, lng: 45.9636 },
-            'ينبع': { lat: 24.0895, lng: 38.0618 },
-            'القطيف': { lat: 26.5765, lng: 50.0389 },
-            'الجبيل': { lat: 27.0046, lng: 49.6620 }
-        };
-        
-        // البحث عن الإحداثيات
-        const fromCoords = cityCoordinates[from];
-        const toCoords = cityCoordinates[to];
-        
-        if (fromCoords && toCoords) {
-            // حساب المسافة باستخدام صيغة Haversine
-            const R = 6371; // نصف قطر الأرض بالكيلومترات
-            const dLat = toRad(toCoords.lat - fromCoords.lat);
-            const dLon = toRad(toCoords.lng - fromCoords.lng);
-            
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                    Math.cos(toRad(fromCoords.lat)) * Math.cos(toRad(toCoords.lat)) *
-                    Math.sin(dLon/2) * Math.sin(dLon/2);
-            
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            const distance = R * c;
-            
-            // تطبيق التعديل على المسافة المقدرة أيضاً
-            return applyDistanceAdjustment(distance);
-        }
-        
-        // تقدير افتراضي إذا لم تكن المدينة في القائمة
-        return applyDistanceAdjustment(450);
-    }
-    
-    function toRad(degrees) {
-        return degrees * Math.PI / 180;
-    }
-
-    // ---- حفظ في قاعدة البيانات ----
-    function saveToDatabase(from, to, baseDistance, adjustedDistance, fuelNeeded, totalCost, carModel, fuelType, duration) {
-        try {
-            // تهيئة Firebase
-            const firebaseConfig = {
-                apiKey: "AIzaSyBkOM7eSnUJ0B_3Mx4wVyh-lTvFEAhxWas",
-                authDomain: "tama-6219c.firebaseapp.com",
-                databaseURL: "https://tama-6219c-default-rtdb.firebaseio.com",
-                projectId: "tama-6219c",
-                storageBucket: "tama-6219c.appspot.com",
-                messagingSenderId: "285162278384",
-                appId: "1:285162278384:web:8264d5439564660b616135"
-            };
-            
-            if (!firebase.apps.length) {
-                firebase.initializeApp(firebaseConfig);
             }
             
-            const db = firebase.database();
+            // بدء التقدم بعد تحميل الصفحة
+            setTimeout(() => {
+                const progressInterval = setInterval(updateProgress, 40);
+                
+                // إيقاف التقدم عند الوصول للهدف
+                setTimeout(() => {
+                    clearInterval(progressInterval);
+                }, 4000);
+            }, 800);
             
-            const requestData = {
-                from: from,
-                to: to,
-                baseDistance: baseDistance.toFixed(1), // المسافة الأصلية
-                adjustedDistance: adjustedDistance.toFixed(1), // المسافة بعد التعديل
-                fuelNeeded: fuelNeeded.toFixed(1),
-                totalCost: totalCost.toFixed(2),
-                carModel: carModel,
-                fuelType: fuelType,
-                duration: duration,
-                adjustmentApplied: true, // إشارة أن التعديل تم تطبيقه
-                timestamp: new Date().toISOString(),
-                date: new Date().toLocaleString('ar-SA')
-            };
+            // بدء العد التنازلي
+            startCountdown();
             
-            // حفظ البيانات في المسار الصحيح ليتوافق مع لوحة التحكم
-            db.ref('fuel_requests').push(requestData)
-                .then(() => {
-                    console.log('✅ تم حفظ الحساب في قاعدة البيانات');
-                    console.log(`📊 التفاصيل: ${from} → ${to} | ${baseDistance.toFixed(1)} → ${adjustedDistance.toFixed(1)} كم`);
-                })
-                .catch(error => {
-                    console.error('❌ خطأ في حفظ البيانات:', error);
-                });
-        } catch (error) {
-            console.error('❌ خطأ في الاتصال بقاعدة البيانات:', error);
+            // تأثيرات إضافية
+            addEffects();
+        });
+        
+        // العد التنازلي للإطلاق
+        function startCountdown() {
+            // تاريخ الإطلاق المتوقع (بعد 14 يوم من الآن)
+            const launchDate = new Date();
+            launchDate.setDate(launchDate.getDate() + 14);
+            launchDate.setHours(launchDate.getHours() + 8);
+            launchDate.setMinutes(launchDate.getMinutes() + 32);
+            launchDate.setSeconds(launchDate.getSeconds() + 15);
+            
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const distance = launchDate.getTime() - now;
+                
+                if (distance < 0) {
+                    // إذا انتهى العد التنازلي
+                    document.getElementById('days').textContent = '00';
+                    document.getElementById('hours').textContent = '00';
+                    document.getElementById('minutes').textContent = '00';
+                    document.getElementById('seconds').textContent = '00';
+                    
+                    // تحديث رسالة النظام
+                    const statusMsg = document.querySelector('.status-message');
+                    statusMsg.textContent = 'تم الانتهاء من التطوير!';
+                    statusMsg.style.background = 'linear-gradient(90deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.15) 100%)';
+                    statusMsg.style.borderRight = '5px solid #22c55e';
+                    
+                    // تحديث شريط التقدم
+                    document.getElementById('progressFill').style.width = '100%';
+                    document.getElementById('progressPercentage').textContent = '100%';
+                    
+                    return;
+                }
+                
+                // حساب الأيام، الساعات، الدقائق والثواني
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                // تحديث القيم في الصفحة مع إضافة صفر أمام الأرقام المفردة
+                document.getElementById('days').textContent = days < 10 ? '0' + days : days;
+                document.getElementById('hours').textContent = hours < 10 ? '0' + hours : hours;
+                document.getElementById('minutes').textContent = minutes < 10 ? '0' + minutes : minutes;
+                document.getElementById('seconds').textContent = seconds < 10 ? '0' + seconds : seconds;
+                
+                // تأثير النبض عند تغيير الثواني
+                if (seconds % 10 === 0) {
+                    const secondsElement = document.getElementById('seconds');
+                    secondsElement.style.transform = 'scale(1.1)';
+                    secondsElement.style.transition = 'transform 0.3s';
+                    
+                    setTimeout(() => {
+                        secondsElement.style.transform = 'scale(1)';
+                    }, 300);
+                }
+            }
+            
+            // تحديث العد التنازلي كل ثانية
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
         }
-    }
+        
+        // إضافة تأثيرات إضافية
+        function addEffects() {
+            // تأثير عند تحميل الصفحة
+            const elements = document.querySelectorAll('.fade-in');
+            elements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.2}s`;
+            });
+            
+            // تأثيرات تفاعلية للميزات
+            const features = document.querySelectorAll('.feature');
+            features.forEach((feature, index) => {
+                feature.style.animationDelay = `${0.5 + index * 0.1}s`;
+                
+                feature.addEventListener('mouseenter', () => {
+                    const icon = feature.querySelector('.feature-icon');
+                    icon.style.transform = 'scale(1.2) rotate(5deg)';
+                    icon.style.transition = 'transform 0.4s';
+                });
+                
+                feature.addEventListener('mouseleave', () => {
+                    const icon = feature.querySelector('.feature-icon');
+                    icon.style.transform = 'scale(1) rotate(0deg)';
+                });
+            });
+            
+            // تأثيرات النبض للرسالة الرئيسية
+            function toggleStatusPulse() {
+                const statusMessage = document.querySelector('.status-message');
+                if (statusMessage.classList.contains('pulse-strong')) {
+                    statusMessage.classList.remove('pulse-strong');
+                    setTimeout(() => {
+                        statusMessage.classList.add('pulse-strong');
+                    }, 50);
+                }
+                
+                setTimeout(toggleStatusPulse, 6000);
+            }
+            
+            setTimeout(toggleStatusPulse, 4000);
+            
+            // تأثير تدوير للأرقام في العد التنازلي
+            setInterval(() => {
+                const countdownValues = document.querySelectorAll('.countdown-value');
+                countdownValues.forEach(value => {
+                    if (Math.random() > 0.7) {
+                        value.style.transform = 'rotateY(10deg)';
+                        setTimeout(() => {
+                            value.style.transform = 'rotateY(0deg)';
+                        }, 300);
+                    }
+                });
+            }, 3000);
+        }
     </script>
 </body>
 </html>
